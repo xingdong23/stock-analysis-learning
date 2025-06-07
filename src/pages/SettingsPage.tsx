@@ -2,12 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Palette, 
-  BookOpen, 
+import {
+  Settings,
+  Bell,
+  Palette,
+  BookOpen,
   BarChart3,
   Save,
   RotateCcw,
@@ -61,7 +60,7 @@ export const SettingsPage: React.FC = () => {
     setSettings(prev => ({
       ...prev,
       [section]: {
-        ...prev[section],
+        ...(prev[section] as any),
         [key]: value
       }
     }));
@@ -106,32 +105,33 @@ export const SettingsPage: React.FC = () => {
     setHasChanges(true);
   };
 
-  const settingSections = [
-    {
-      id: 'appearance',
-      title: '外观设置',
-      icon: Palette,
-      description: '自定义界面主题和显示效果'
-    },
-    {
-      id: 'notifications',
-      title: '通知设置',
-      icon: Bell,
-      description: '管理各类通知和提醒'
-    },
-    {
-      id: 'display',
-      title: '显示设置',
-      icon: Monitor,
-      description: '调整图表和界面显示选项'
-    },
-    {
-      id: 'learning',
-      title: '学习设置',
-      icon: BookOpen,
-      description: '个性化学习体验和进度管理'
-    }
-  ];
+  // 设置分类配置（暂时注释，未来可能使用）
+  // const settingSections = [
+  //   {
+  //     id: 'appearance',
+  //     title: '外观设置',
+  //     icon: Palette,
+  //     description: '自定义界面主题和显示效果'
+  //   },
+  //   {
+  //     id: 'notifications',
+  //     title: '通知设置',
+  //     icon: Bell,
+  //     description: '管理各类通知和提醒'
+  //   },
+  //   {
+  //     id: 'display',
+  //     title: '显示设置',
+  //     icon: Monitor,
+  //     description: '调整图表和界面显示选项'
+  //   },
+  //   {
+  //     id: 'learning',
+  //     title: '学习设置',
+  //     icon: BookOpen,
+  //     description: '个性化学习体验和进度管理'
+  //   }
+  // ];
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -124,7 +124,6 @@ const getCandlestickOption = (
     {
       type: 'category',
       data: dates,
-      scale: true,
       boundaryGap: false,
       axisLine: { onZero: false },
       splitLine: { show: false },
@@ -135,7 +134,6 @@ const getCandlestickOption = (
       type: 'category',
       gridIndex: 1,
       data: dates,
-      scale: true,
       boundaryGap: false,
       axisLine: { onZero: false },
       axisTick: { show: false },

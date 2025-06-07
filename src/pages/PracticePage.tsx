@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, RotateCcw, CheckCircle, XCircle, Lightbulb, TrendingUp } from 'lucide-react';
+import { RotateCcw, CheckCircle, XCircle, Lightbulb, TrendingUp } from 'lucide-react';
 import { TechnicalChart } from '../components/Chart/TechnicalChart';
 import { technicalIndicators } from '../data/indicators';
 
