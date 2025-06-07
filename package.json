@@ -11,6 +11,11 @@
     "deploy:dev": "./scripts/deploy.sh dev",
     "deploy:staging": "./scripts/deploy.sh staging",
     "deploy:prod": "./scripts/deploy.sh production",
+    "deploy:server": "./scripts/deploy-to-server.sh",
+    "setup:ssh": "./scripts/setup-ssh.sh",
+    "deploy:server": "./scripts/deploy-to-server.sh",
+    "setup:ssh": "./scripts/setup-ssh.sh",
+    "server:connect": "./scripts/connect-server.sh",
     "build:analyze": "npm run build && npx vite-bundle-analyzer dist",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist node_modules/.vite"
