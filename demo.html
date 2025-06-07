@@ -1,0 +1,2580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票技术分析学院 - 演示版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center">
+                        <span class="text-white text-lg">📈</span>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">股票技术分析学院</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-blue-600 font-medium">首页</a>
+                    <a href="#indicators" class="text-gray-700 hover:text-blue-600">指标学习</a>
+                    <a href="#practice" class="text-gray-700 hover:text-blue-600">模拟练习</a>
+                    <a href="#about" class="text-gray-700 hover:text-blue-600">关于我们</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="gradient-bg text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                            掌握股票技术分析
+                            <br>
+                            <span class="text-blue-200">从零开始学习</span>
+                        </h1>
+                        <p class="text-xl text-blue-100 mb-8">
+                            系统学习所有主要技术指标，通过交互式图表和模拟练习，快速提升你的股票分析能力。
+                        </p>
+                        <div class="flex space-x-4">
+                            <button onclick="scrollToSection('indicators')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                                开始学习
+                            </button>
+                            <button onclick="scrollToSection('practice')" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                                模拟练习
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+                        <div id="heroChart" style="width: 100%; height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 统计数据 -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div>
+                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">50+</div>
+                        <div class="text-gray-600">技术指标</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">7</div>
+                        <div class="text-gray-600">学习模块</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">100+</div>
+                        <div class="text-gray-600">图表示例</div>
+                    </div>
+                    <div>
+                        <div class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">200+</div>
+                        <div class="text-gray-600">练习题目</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 技术指标展示 -->
+        <section id="indicators" class="py-20 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        热门技术指标
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        从这些最常用的技术指标开始你的学习之旅
+                    </p>
+                </div>
+
+                <!-- 分类展示技术指标 -->
+                <div class="space-y-12">
+                    <!-- 技术理论 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">📚</span>
+                            技术理论基础
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('dow_theory')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">道氏理论</h4>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">高级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    技术分析的鼻祖，三重运动原理和六大定理
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('chan_theory')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">缠论</h4>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">高级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    分型、笔、线段、中枢理论，精确的买卖点判断
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('elliott_wave')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">波浪理论</h4>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">高级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    艾略特波浪理论，5浪上升3浪调整的经典模式
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- K线形态 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🕯️</span>
+                            K线形态分析
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('doji')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">十字星</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    多空平衡的经典形态
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('hammer')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">锤子线</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    底部反转的强烈信号
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('morning_star')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">启明星</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    三K线底部反转组合
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('engulfing')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">吞没形态</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    强势反转的经典组合
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 趋势指标 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">📈</span>
+                            趋势分析指标
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('ma')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">移动平均线</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    最基础的趋势跟踪工具
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('bollinger')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">布林带</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    波动率与趋势的结合
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('sar')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">抛物线SAR</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    趋势跟踪止损指标
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('ichimoku')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">一目均衡表</h4>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">高级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    日本传统技术分析
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 动量指标 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">⚡</span>
+                            动量振荡指标
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('macd')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">MACD</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    趋势与动量的完美结合
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('rsi')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">RSI</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    超买超卖的经典指标
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('kdj')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">KDJ</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    随机指标的改进版本
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('williams_r')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">威廉指标</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    短期超买超卖判断
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成交量指标 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">📊</span>
+                            成交量分析
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('volume_price')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">量价关系</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    价涨量增，价跌量缩
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('obv')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">OBV</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    能量潮指标
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('vwap')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">VWAP</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    成交量加权平均价
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('volume_profile')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">成交量分布</h4>
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium">高级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    价格区间成交量分析
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 支撑阻力 -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🏗️</span>
+                            支撑阻力分析
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('support_resistance')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">支撑阻力位</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    关键价格位置识别
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('fibonacci')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">斐波那契</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    黄金分割回调位
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('pivot_points')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">枢轴点</h4>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium">中级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    日内交易关键位
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showIndicatorDetail('trendlines')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-lg font-semibold text-gray-900">趋势线</h4>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">初级</span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-4">
+                                    连接高低点的艺术
+                                </p>
+                                <div class="flex items-center text-blue-600 text-sm font-medium">
+                                    开始学习 →
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 模拟练习 -->
+        <section id="practice" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                        模拟练习系统
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        通过实战练习巩固你的技术分析技能
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🎯</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">形态识别</h3>
+                        <p class="text-gray-600">练习识别各种K线形态和技术图形</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">📊</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">信号判断</h3>
+                        <p class="text-gray-600">学习判断买卖信号的时机和强度</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🏆</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">综合分析</h3>
+                        <p class="text-gray-600">综合运用多个指标进行全面分析</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button onclick="startPractice()" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        开始练习
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 指标详情模态框 -->
+    <div id="indicatorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 id="modalTitle" class="text-2xl font-bold text-gray-900"></h2>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                            <span class="text-2xl">×</span>
+                        </button>
+                    </div>
+                    <div id="modalContent"></div>
+                    <div id="modalChart" style="width: 100%; height: 400px; margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 练习模态框 -->
+    <div id="practiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">技术分析练习</h2>
+                            <div class="flex items-center mt-2 space-x-4">
+                                <span class="text-sm text-gray-600">题目 <span id="currentQuestion">1</span> / <span id="totalQuestions">10</span></span>
+                                <span class="text-sm text-gray-600">得分: <span id="currentScore">0</span></span>
+                            </div>
+                        </div>
+                        <button onclick="closePractice()" class="text-gray-400 hover:text-gray-600">
+                            <span class="text-2xl">×</span>
+                        </button>
+                    </div>
+
+                    <div id="practiceContent">
+                        <!-- 练习内容将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 练习结果模态框 -->
+    <div id="practiceResultModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full">
+                <div class="p-6 text-center">
+                    <div id="resultIcon" class="text-6xl mb-4"></div>
+                    <h3 id="resultTitle" class="text-2xl font-bold text-gray-900 mb-2"></h3>
+                    <p id="resultMessage" class="text-gray-600 mb-6"></p>
+                    <div class="space-y-3">
+                        <button onclick="restartPractice()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            重新练习
+                        </button>
+                        <button onclick="closePracticeResult()" class="w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                            返回主页
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentPracticeQuestion = 0;
+        let practiceScore = 0;
+        let practiceQuestions = [];
+
+        // 生成模拟股票数据
+        function generateStockData(days = 60, pattern = 'random') {
+            const data = [];
+            let price = 100;
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - days);
+
+            for (let i = 0; i < days; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i);
+
+                let change;
+
+                // 根据模式生成不同的数据
+                switch (pattern) {
+                    case 'uptrend':
+                        change = (Math.random() - 0.3) * 0.04; // 偏向上涨
+                        break;
+                    case 'downtrend':
+                        change = (Math.random() - 0.7) * 0.04; // 偏向下跌
+                        break;
+                    case 'sideways':
+                        change = (Math.random() - 0.5) * 0.02; // 横盘整理
+                        break;
+                    case 'volatile':
+                        change = (Math.random() - 0.5) * 0.08; // 高波动
+                        break;
+                    default:
+                        change = (Math.random() - 0.5) * 0.04;
+                }
+
+                const open = price;
+                const close = open * (1 + change);
+                const high = Math.max(open, close) * (1 + Math.random() * 0.02);
+                const low = Math.min(open, close) * (1 - Math.random() * 0.02);
+
+                data.push([
+                    date.toISOString().split('T')[0],
+                    parseFloat(open.toFixed(2)),
+                    parseFloat(close.toFixed(2)),
+                    parseFloat(low.toFixed(2)),
+                    parseFloat(high.toFixed(2)),
+                    Math.floor(Math.random() * 1000000 + 500000)
+                ]);
+
+                price = close;
+            }
+
+            return data;
+        }
+
+        // 生成特定K线形态
+        function generateCandlestickPattern(pattern) {
+            const baseData = generateStockData(50);
+            const patternData = [...baseData];
+
+            // 在最后几个位置插入特定形态
+            const insertIndex = patternData.length - 5;
+
+            switch (pattern) {
+                case 'doji':
+                    // 十字星：开盘价≈收盘价，有上下影线
+                    const dojiPrice = patternData[insertIndex][2];
+                    patternData[insertIndex] = [
+                        patternData[insertIndex][0],
+                        dojiPrice,
+                        dojiPrice + (Math.random() - 0.5) * 0.2,
+                        dojiPrice - Math.random() * 2,
+                        dojiPrice + Math.random() * 2,
+                        patternData[insertIndex][5]
+                    ];
+                    break;
+
+                case 'hammer':
+                    // 锤子线：长下影线，短上影线，小实体
+                    const hammerPrice = patternData[insertIndex][2];
+                    const bodySize = Math.random() * 0.5 + 0.2;
+                    patternData[insertIndex] = [
+                        patternData[insertIndex][0],
+                        hammerPrice,
+                        hammerPrice + bodySize,
+                        hammerPrice - Math.random() * 3 - 2, // 长下影线
+                        hammerPrice + bodySize + Math.random() * 0.5, // 短上影线
+                        patternData[insertIndex][5]
+                    ];
+                    break;
+
+                case 'shooting_star':
+                    // 流星线：长上影线，短下影线，小实体
+                    const starPrice = patternData[insertIndex][2];
+                    const starBodySize = Math.random() * 0.5 + 0.2;
+                    patternData[insertIndex] = [
+                        patternData[insertIndex][0],
+                        starPrice,
+                        starPrice - starBodySize,
+                        starPrice - starBodySize - Math.random() * 0.5, // 短下影线
+                        starPrice + Math.random() * 3 + 2, // 长上影线
+                        patternData[insertIndex][5]
+                    ];
+                    break;
+            }
+
+            return patternData;
+        }
+
+        // 计算技术指标
+        function calculateMACD(data, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+            const prices = data.map(item => item[2]); // 收盘价
+            const fastEMA = calculateEMA(prices, fastPeriod);
+            const slowEMA = calculateEMA(prices, slowPeriod);
+
+            const macdLine = fastEMA.map((fast, i) =>
+                fast && slowEMA[i] ? fast - slowEMA[i] : null
+            );
+
+            const signalLine = calculateEMA(macdLine.filter(v => v !== null), signalPeriod);
+            const histogram = macdLine.map((macd, i) =>
+                macd && signalLine[i] ? macd - signalLine[i] : null
+            );
+
+            return { macdLine, signalLine, histogram };
+        }
+
+        function calculateEMA(data, period) {
+            const ema = [];
+            const multiplier = 2 / (period + 1);
+
+            for (let i = 0; i < data.length; i++) {
+                if (i === 0) {
+                    ema.push(data[i]);
+                } else {
+                    ema.push((data[i] - ema[i - 1]) * multiplier + ema[i - 1]);
+                }
+            }
+
+            return ema;
+        }
+
+        function calculateRSI(data, period = 14) {
+            const prices = data.map(item => item[2]);
+            const rsi = [];
+            const gains = [];
+            const losses = [];
+
+            for (let i = 1; i < prices.length; i++) {
+                const change = prices[i] - prices[i - 1];
+                gains.push(change > 0 ? change : 0);
+                losses.push(change < 0 ? Math.abs(change) : 0);
+            }
+
+            for (let i = 0; i < prices.length; i++) {
+                if (i < period) {
+                    rsi.push(null);
+                } else {
+                    const avgGain = gains.slice(i - period, i).reduce((a, b) => a + b, 0) / period;
+                    const avgLoss = losses.slice(i - period, i).reduce((a, b) => a + b, 0) / period;
+
+                    if (avgLoss === 0) {
+                        rsi.push(100);
+                    } else {
+                        const rs = avgGain / avgLoss;
+                        rsi.push(100 - (100 / (1 + rs)));
+                    }
+                }
+            }
+
+            return rsi;
+        }
+
+        // 计算KDJ指标
+        function calculateKDJ(data, period = 9) {
+            const K = [];
+            const D = [];
+            const J = [];
+            let prevK = 50;
+            let prevD = 50;
+
+            for (let i = 0; i < data.length; i++) {
+                if (i < period - 1) {
+                    K.push(null);
+                    D.push(null);
+                    J.push(null);
+                } else {
+                    const periodData = data.slice(i - period + 1, i + 1);
+                    const highs = periodData.map(item => item[4]);
+                    const lows = periodData.map(item => item[3]);
+                    const close = data[i][2];
+
+                    const highestHigh = Math.max(...highs);
+                    const lowestLow = Math.min(...lows);
+
+                    const rsv = ((close - lowestLow) / (highestHigh - lowestLow)) * 100;
+
+                    const currentK = (2/3) * prevK + (1/3) * rsv;
+                    const currentD = (2/3) * prevD + (1/3) * currentK;
+                    const currentJ = 3 * currentK - 2 * currentD;
+
+                    K.push(Number(currentK.toFixed(2)));
+                    D.push(Number(currentD.toFixed(2)));
+                    J.push(Number(currentJ.toFixed(2)));
+
+                    prevK = currentK;
+                    prevD = currentD;
+                }
+            }
+
+            return { K, D, J };
+        }
+
+        // 初始化Hero图表
+        function initHeroChart() {
+            const chart = echarts.init(document.getElementById('heroChart'), 'dark');
+            const data = generateStockData(30);
+            
+            const option = {
+                title: {
+                    text: '股票走势演示',
+                    textStyle: { color: '#fff', fontSize: 16 }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' }
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(item => item[0]),
+                    axisLine: { lineStyle: { color: '#fff' } },
+                    axisLabel: { color: '#fff' }
+                },
+                yAxis: {
+                    scale: true,
+                    axisLine: { lineStyle: { color: '#fff' } },
+                    axisLabel: { color: '#fff' }
+                },
+                series: [{
+                    type: 'candlestick',
+                    data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                    itemStyle: {
+                        color: '#ef4444',
+                        color0: '#22c55e',
+                        borderColor: '#ef4444',
+                        borderColor0: '#22c55e'
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // 显示指标详情
+        function showIndicatorDetail(indicatorId) {
+            const indicators = {
+                macd: {
+                    title: 'MACD - 移动平均收敛发散指标',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        📊 定义与原理
+                                    </h3>
+                                    <p class="text-gray-700 leading-relaxed">MACD是一种趋势跟踪动量指标，通过计算两条不同周期的指数移动平均线的差值来分析价格趋势的变化。它能够同时反映趋势方向和动量强度。</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        🧮 计算公式
+                                    </h3>
+                                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
+                                        <div class="font-mono text-sm space-y-1">
+                                            <div><span class="text-blue-600">MACD</span> = EMA(12) - EMA(26)</div>
+                                            <div><span class="text-green-600">Signal</span> = EMA(MACD, 9)</div>
+                                            <div><span class="text-purple-600">Histogram</span> = MACD - Signal</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                    🎯 交易信号识别
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📈</span>
+                                            <strong class="text-green-800">金叉买入</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">MACD线上穿信号线，表示上升动能增强</p>
+                                    </div>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📉</span>
+                                            <strong class="text-red-800">死叉卖出</strong>
+                                        </div>
+                                        <p class="text-red-700 text-sm">MACD线下穿信号线，表示下降动能增强</p>
+                                    </div>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">⚠️</span>
+                                            <strong class="text-yellow-800">背离信号</strong>
+                                        </div>
+                                        <p class="text-yellow-700 text-sm">价格与MACD走势相反，可能反转</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-blue-900 mb-2">💡 实战技巧</h4>
+                                <ul class="text-blue-800 text-sm space-y-1">
+                                    <li>• 在趋势明确的市场中效果更好</li>
+                                    <li>• 结合价格形态和成交量确认信号</li>
+                                    <li>• 注意背离信号的预警作用</li>
+                                    <li>• 避免在震荡市场中频繁交易</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'macd'
+                },
+                rsi: {
+                    title: 'RSI - 相对强弱指标',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        🎯 指标原理
+                                    </h3>
+                                    <p class="text-gray-700 leading-relaxed">RSI是一种动量振荡器，通过比较一定时期内价格上涨和下跌的幅度来衡量价格变动的速度和幅度，帮助识别超买超卖状态。</p>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        📏 数值区间
+                                    </h3>
+                                    <div class="bg-gradient-to-r from-red-100 via-yellow-100 to-green-100 p-4 rounded-lg border">
+                                        <div class="flex justify-between items-center text-sm font-medium">
+                                            <span class="text-red-600">超卖区 (0-30)</span>
+                                            <span class="text-gray-600">正常区 (30-70)</span>
+                                            <span class="text-green-600">超买区 (70-100)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                    🚦 交易信号区域
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔴</span>
+                                            <strong class="text-red-800">超买信号 (RSI > 70)</strong>
+                                        </div>
+                                        <p class="text-red-700 text-sm">价格可能过高，面临回调压力，考虑减仓或卖出</p>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🟢</span>
+                                            <strong class="text-green-800">超卖信号 (RSI < 30)</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">价格可能过低，面临反弹机会，考虑买入</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-purple-900 mb-2 flex items-center">
+                                    ⚡ 高级信号：背离
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <strong class="text-purple-800">顶背离：</strong>
+                                        <span class="text-purple-700">价格创新高，RSI未创新高，看跌信号</span>
+                                    </div>
+                                    <div>
+                                        <strong class="text-purple-800">底背离：</strong>
+                                        <span class="text-purple-700">价格创新低，RSI未创新低，看涨信号</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'rsi'
+                },
+                doji: {
+                    title: '十字星 - K线形态',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="text-center mb-6">
+                                <div class="inline-block bg-gray-100 p-6 rounded-lg">
+                                    <div class="text-6xl mb-2">✚</div>
+                                    <div class="text-sm text-gray-600">十字星形态示意</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        🎯 形态特征
+                                    </h3>
+                                    <div class="space-y-2 text-gray-700">
+                                        <div class="flex items-center">
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                            开盘价 ≈ 收盘价
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                            实体很小或没有
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                                            上下影线可长可短
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        💭 市场心理
+                                    </h3>
+                                    <p class="text-gray-700 leading-relaxed">多空双方力量达到平衡，买方和卖方势均力敌，市场处于犹豫不决状态，往往预示着趋势可能发生变化。</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                    📍 出现位置与信号
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔺</span>
+                                            <strong class="text-red-800">顶部十字星</strong>
+                                        </div>
+                                        <p class="text-red-700 text-sm">在上升趋势高位出现，可能是见顶信号</p>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔻</span>
+                                            <strong class="text-green-800">底部十字星</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">在下降趋势低位出现，可能是见底信号</p>
+                                    </div>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">➡️</span>
+                                            <strong class="text-yellow-800">中继十字星</strong>
+                                        </div>
+                                        <p class="text-yellow-700 text-sm">在趋势中途出现，通常是短暂整理</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-blue-900 mb-2">⚠️ 注意事项</h4>
+                                <ul class="text-blue-800 text-sm space-y-1">
+                                    <li>• 单独的十字星信号强度有限，需要结合其他指标</li>
+                                    <li>• 在重要支撑阻力位出现时意义更大</li>
+                                    <li>• 成交量的配合能增强信号可靠性</li>
+                                    <li>• 连续出现多个十字星表示市场极度犹豫</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'doji'
+                },
+
+                // 道氏理论
+                dow_theory: {
+                    title: '道氏理论 - 技术分析的基石',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                                    🏛️ 理论背景
+                                </h3>
+                                <p class="text-gray-700 leading-relaxed">
+                                    道氏理论由查尔斯·道创立，是技术分析的鼻祖。该理论认为股价运动有其内在规律，
+                                    通过分析市场行为可以预测未来价格走势。道氏理论奠定了现代技术分析的基础。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    📊 三重运动原理
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🌊</span>
+                                            <strong class="text-blue-800">主要趋势</strong>
+                                        </div>
+                                        <p class="text-blue-700 text-sm">持续1-3年的长期趋势，如牛市或熊市</p>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">〰️</span>
+                                            <strong class="text-green-800">次要趋势</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">持续3周-3个月的中期调整</p>
+                                    </div>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📈</span>
+                                            <strong class="text-yellow-800">短暂波动</strong>
+                                        </div>
+                                        <p class="text-yellow-700 text-sm">持续数小时到数周的短期波动</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    📜 道氏理论六大定理
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">1. 平均价格包容一切</strong>
+                                        <p class="text-gray-700 text-sm mt-1">市场价格反映了所有已知信息</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">2. 市场具有三种趋势</strong>
+                                        <p class="text-gray-700 text-sm mt-1">主要趋势、次要趋势、短暂波动</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">3. 主要趋势分三个阶段</strong>
+                                        <p class="text-gray-700 text-sm mt-1">积累期、公众参与期、恐慌期</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">4. 各种平均价格必须相互验证</strong>
+                                        <p class="text-gray-700 text-sm mt-1">工业指数和运输指数应同向运动</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">5. 成交量必须验证趋势</strong>
+                                        <p class="text-gray-700 text-sm mt-1">价格上涨应伴随成交量放大</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">6. 趋势持续直到明确反转</strong>
+                                        <p class="text-gray-700 text-sm mt-1">趋势具有惯性，不会轻易改变</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-orange-900 mb-2">💡 实战应用</h4>
+                                <ul class="text-orange-800 text-sm space-y-1">
+                                    <li>• 识别主要趋势方向，顺势而为</li>
+                                    <li>• 利用次要趋势寻找入场时机</li>
+                                    <li>• 关注成交量变化验证趋势</li>
+                                    <li>• 等待明确的趋势反转信号</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'dow_theory'
+                },
+
+                // 缠论
+                chan_theory: {
+                    title: '缠论 - 精确的技术分析体系',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                                    🧠 缠论核心思想
+                                </h3>
+                                <p class="text-gray-700 leading-relaxed">
+                                    缠论是一套完整的技术分析理论体系，通过分型、笔、线段、中枢等概念，
+                                    构建了精确的买卖点判断方法。缠论强调走势的分解和重构，追求操作的精确性。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🔍 基本概念体系
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📍</span>
+                                            <strong class="text-blue-800">分型</strong>
+                                        </div>
+                                        <p class="text-blue-700 text-sm">顶分型：中间K线高点最高<br>底分型：中间K线低点最低</p>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">✏️</span>
+                                            <strong class="text-green-800">笔</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">连接相邻顶底分型的直线，至少包含一个独立K线</p>
+                                    </div>
+                                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📏</span>
+                                            <strong class="text-purple-800">线段</strong>
+                                        </div>
+                                        <p class="text-purple-700 text-sm">至少由三笔构成，具有明确方向性的价格运动</p>
+                                    </div>
+                                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🎯</span>
+                                            <strong class="text-orange-800">中枢</strong>
+                                        </div>
+                                        <p class="text-orange-700 text-sm">至少由三段同级别走势重叠形成的价格区间</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🎯 三类买卖点
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🟢</span>
+                                            <strong class="text-green-800">一类买点</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">下跌趋势结束，向上离开最后一个中枢的点</p>
+                                    </div>
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔵</span>
+                                            <strong class="text-blue-800">二类买点</strong>
+                                        </div>
+                                        <p class="text-blue-700 text-sm">上涨后回调不破中枢，再次向上的点</p>
+                                    </div>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🟡</span>
+                                            <strong class="text-yellow-800">三类买点</strong>
+                                        </div>
+                                        <p class="text-yellow-700 text-sm">向上离开中枢后的第一次回调不破中枢的点</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    📈 走势分解原理
+                                </h3>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <div class="text-center mb-4">
+                                        <strong class="text-gray-900">走势 = 上涨 + 下跌 + 盘整</strong>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                        <div class="text-center">
+                                            <div class="text-green-600 font-medium">上涨</div>
+                                            <div class="text-gray-600">高点和低点依次抬高</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-red-600 font-medium">下跌</div>
+                                            <div class="text-gray-600">高点和低点依次降低</div>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="text-blue-600 font-medium">盘整</div>
+                                            <div class="text-gray-600">围绕中枢震荡</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-900 mb-2">⚠️ 学习要点</h4>
+                                <ul class="text-red-800 text-sm space-y-1">
+                                    <li>• 缠论需要大量练习才能熟练掌握</li>
+                                    <li>• 严格按照定义识别分型、笔、线段</li>
+                                    <li>• 中枢的确认是关键，需要耐心等待</li>
+                                    <li>• 买卖点的确认要结合多个级别分析</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'chan_theory'
+                },
+
+                // 支撑阻力位
+                support_resistance: {
+                    title: '支撑阻力位 - 价格行为的关键区域',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-lg border">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                                    🏗️ 基本概念
+                                </h3>
+                                <p class="text-gray-700 leading-relaxed">
+                                    支撑位是价格下跌过程中遇到买盘支撑而止跌的价格水平；
+                                    阻力位是价格上涨过程中遇到卖盘阻力而回落的价格水平。
+                                    这些关键位置往往具有重要的心理和技术意义。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    📊 支撑阻力的形成原理
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🛡️</span>
+                                            <strong class="text-green-800">支撑位</strong>
+                                        </div>
+                                        <ul class="text-green-700 text-sm space-y-1">
+                                            <li>• 历史低点位置</li>
+                                            <li>• 前期重要底部</li>
+                                            <li>• 重要均线位置</li>
+                                            <li>• 心理整数关口</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🚧</span>
+                                            <strong class="text-red-800">阻力位</strong>
+                                        </div>
+                                        <ul class="text-red-700 text-sm space-y-1">
+                                            <li>• 历史高点位置</li>
+                                            <li>• 前期重要顶部</li>
+                                            <li>• 重要均线压力</li>
+                                            <li>• 心理整数关口</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🔄 支撑阻力的转换
+                                </h3>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <strong class="text-blue-800">支撑变阻力</strong>
+                                            <p class="text-blue-700 text-sm mt-1">
+                                                当价格跌破重要支撑位后，该位置往往成为后续反弹的阻力位
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <strong class="text-blue-800">阻力变支撑</strong>
+                                            <p class="text-blue-700 text-sm mt-1">
+                                                当价格突破重要阻力位后，该位置往往成为后续回调的支撑位
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🎯 实战应用策略
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">1. 支撑位买入策略</strong>
+                                        <p class="text-gray-700 text-sm mt-1">在重要支撑位附近分批买入，设置止损位于支撑位下方</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">2. 阻力位卖出策略</strong>
+                                        <p class="text-gray-700 text-sm mt-1">在重要阻力位附近分批卖出，或等待突破确认</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">3. 突破交易策略</strong>
+                                        <p class="text-gray-700 text-sm mt-1">等待有效突破支撑阻力位，顺势跟进</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                        <strong class="text-gray-900">4. 假突破识别</strong>
+                                        <p class="text-gray-700 text-sm mt-1">结合成交量和时间因素，避免假突破陷阱</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-yellow-900 mb-2">💡 识别技巧</h4>
+                                <ul class="text-yellow-800 text-sm space-y-1">
+                                    <li>• 多次测试的位置更加可靠</li>
+                                    <li>• 成交量配合的突破更有效</li>
+                                    <li>• 时间越久的位置越重要</li>
+                                    <li>• 结合多个时间周期分析</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'support_resistance'
+                },
+
+                // KDJ指标
+                kdj: {
+                    title: 'KDJ - 随机指标',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                                    📊 KDJ指标原理
+                                </h3>
+                                <p class="text-gray-700 leading-relaxed">
+                                    KDJ指标是在随机指标KD的基础上，通过引入J值而形成的。
+                                    它综合了动量观念、强弱指标与移动平均线的优点，
+                                    用来判断股价的超买超卖状态。
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        🧮 计算方法
+                                    </h3>
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <div class="font-mono text-sm space-y-2">
+                                            <div><span class="text-blue-600">RSV</span> = (C-L9)/(H9-L9)×100</div>
+                                            <div><span class="text-green-600">K</span> = 2/3×K前值 + 1/3×RSV</div>
+                                            <div><span class="text-purple-600">D</span> = 2/3×D前值 + 1/3×K</div>
+                                            <div><span class="text-orange-600">J</span> = 3K - 2D</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3 flex items-center">
+                                        📏 数值区间
+                                    </h3>
+                                    <div class="space-y-2">
+                                        <div class="bg-red-50 border border-red-200 rounded p-2">
+                                            <strong class="text-red-800">超买区：K、D > 80</strong>
+                                        </div>
+                                        <div class="bg-yellow-50 border border-yellow-200 rounded p-2">
+                                            <strong class="text-yellow-800">正常区：20 < K、D < 80</strong>
+                                        </div>
+                                        <div class="bg-green-50 border border-green-200 rounded p-2">
+                                            <strong class="text-green-800">超卖区：K、D < 20</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🚦 交易信号
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📈</span>
+                                            <strong class="text-green-800">买入信号</strong>
+                                        </div>
+                                        <ul class="text-green-700 text-sm space-y-1">
+                                            <li>• K线上穿D线形成金叉</li>
+                                            <li>• KDJ在超卖区向上发散</li>
+                                            <li>• J值从负值区域向上</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">📉</span>
+                                            <strong class="text-red-800">卖出信号</strong>
+                                        </div>
+                                        <ul class="text-red-700 text-sm space-y-1">
+                                            <li>• K线下穿D线形成死叉</li>
+                                            <li>• KDJ在超买区向下发散</li>
+                                            <li>• J值从高位区域向下</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-blue-900 mb-2">💡 使用技巧</h4>
+                                <ul class="text-blue-800 text-sm space-y-1">
+                                    <li>• J值变化最敏感，可作为先行指标</li>
+                                    <li>• 在趋势市场中容易产生假信号</li>
+                                    <li>• 最好在震荡市场中使用</li>
+                                    <li>• 结合其他指标确认信号</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'kdj'
+                },
+
+                // 成交量价格关系
+                volume_price: {
+                    title: '量价关系 - 市场的内在动力',
+                    content: `
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-lg border">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                                    📊 量价关系原理
+                                </h3>
+                                <p class="text-gray-700 leading-relaxed">
+                                    成交量是价格变动的内在动力，量价关系是技术分析的核心。
+                                    通过分析成交量与价格的配合情况，可以判断趋势的真实性和持续性。
+                                    "量在价先"是量价分析的基本原则。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    📈 经典量价关系
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🟢</span>
+                                            <strong class="text-green-800">健康上涨</strong>
+                                        </div>
+                                        <p class="text-green-700 text-sm">价涨量增：上涨伴随成交量放大，趋势健康</p>
+                                    </div>
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔴</span>
+                                            <strong class="text-red-800">健康下跌</strong>
+                                        </div>
+                                        <p class="text-red-700 text-sm">价跌量增：下跌伴随成交量放大，跌势确立</p>
+                                    </div>
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🟡</span>
+                                            <strong class="text-yellow-800">量价背离</strong>
+                                        </div>
+                                        <p class="text-yellow-700 text-sm">价涨量缩：上涨乏力，可能见顶</p>
+                                    </div>
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-2">🔵</span>
+                                            <strong class="text-blue-800">止跌信号</strong>
+                                        </div>
+                                        <p class="text-blue-700 text-sm">价跌量缩：下跌动能衰竭，可能见底</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                    🎯 八大量价关系
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">1. 量增价涨</strong>
+                                        <p class="text-gray-700 text-sm">买盘积极，后市看好</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">2. 量增价跌</strong>
+                                        <p class="text-gray-700 text-sm">卖压沉重，后市看淡</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">3. 量缩价涨</strong>
+                                        <p class="text-gray-700 text-sm">上涨乏力，注意风险</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">4. 量缩价跌</strong>
+                                        <p class="text-gray-700 text-sm">下跌动能不足，可能止跌</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">5. 量增价平</strong>
+                                        <p class="text-gray-700 text-sm">多空分歧，等待方向</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">6. 量缩价平</strong>
+                                        <p class="text-gray-700 text-sm">成交清淡，观望为主</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">7. 量平价涨</strong>
+                                        <p class="text-gray-700 text-sm">温和上涨，可持续关注</p>
+                                    </div>
+                                    <div class="bg-white border border-gray-200 rounded-lg p-3">
+                                        <strong class="text-gray-900">8. 量平价跌</strong>
+                                        <p class="text-gray-700 text-sm">无量下跌，反弹可期</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-purple-900 mb-2">⚡ 实战要点</h4>
+                                <ul class="text-purple-800 text-sm space-y-1">
+                                    <li>• 关注关键位置的量价配合</li>
+                                    <li>• 天量见天价，地量见地价</li>
+                                    <li>• 突破时必须有成交量配合</li>
+                                    <li>• 量价背离往往预示趋势转折</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                    chartType: 'volume_price'
+                }
+            };
+
+            const indicator = indicators[indicatorId];
+            if (indicator) {
+                document.getElementById('modalTitle').textContent = indicator.title;
+                document.getElementById('modalContent').innerHTML = indicator.content;
+                document.getElementById('indicatorModal').classList.remove('hidden');
+
+                // 显示动态图表
+                setTimeout(() => {
+                    showDynamicChart(indicator.chartType, indicator.title);
+                }, 100);
+            }
+        }
+
+        // 显示动态图表
+        function showDynamicChart(chartType, title) {
+            const chart = echarts.init(document.getElementById('modalChart'));
+            let data, option;
+
+            switch (chartType) {
+                case 'macd':
+                    data = generateStockData(60, 'uptrend');
+                    const macd = calculateMACD(data);
+
+                    option = {
+                        title: {
+                            text: `${title} - 动态演示`,
+                            left: 'center',
+                            textStyle: { fontSize: 16 }
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'cross' },
+                            formatter: function(params) {
+                                let result = `<div style="padding: 8px;">`;
+                                result += `<div style="font-weight: bold; margin-bottom: 4px;">${params[0].name}</div>`;
+                                params.forEach(param => {
+                                    if (param.seriesName === 'K线') {
+                                        const [open, close, low, high] = param.value;
+                                        result += `<div>开盘: ${open}</div>`;
+                                        result += `<div>收盘: ${close}</div>`;
+                                        result += `<div>最高: ${high}</div>`;
+                                        result += `<div>最低: ${low}</div>`;
+                                    } else {
+                                        result += `<div>${param.seriesName}: ${param.value?.toFixed(4) || 'N/A'}</div>`;
+                                    }
+                                });
+                                result += `</div>`;
+                                return result;
+                            }
+                        },
+                        legend: {
+                            data: ['K线', 'MACD', 'Signal', 'Histogram'],
+                            top: 30
+                        },
+                        grid: [
+                            { left: '10%', right: '8%', height: '50%' },
+                            { left: '10%', right: '8%', top: '70%', height: '20%' }
+                        ],
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: data.map(item => item[0]),
+                                scale: true,
+                                boundaryGap: false,
+                                axisLine: { onZero: false },
+                                splitLine: { show: false }
+                            },
+                            {
+                                type: 'category',
+                                gridIndex: 1,
+                                data: data.map(item => item[0]),
+                                scale: true,
+                                boundaryGap: false,
+                                axisLine: { onZero: false },
+                                axisTick: { show: false },
+                                splitLine: { show: false },
+                                axisLabel: { show: false }
+                            }
+                        ],
+                        yAxis: [
+                            { scale: true, splitArea: { show: true } },
+                            {
+                                scale: true,
+                                gridIndex: 1,
+                                splitNumber: 2,
+                                axisLabel: { show: false },
+                                axisLine: { show: false },
+                                axisTick: { show: false },
+                                splitLine: { show: false }
+                            }
+                        ],
+                        series: [
+                            {
+                                name: 'K线',
+                                type: 'candlestick',
+                                data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                                itemStyle: {
+                                    color: '#ef4444',
+                                    color0: '#22c55e',
+                                    borderColor: '#ef4444',
+                                    borderColor0: '#22c55e'
+                                }
+                            },
+                            {
+                                name: 'MACD',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: macd.macdLine,
+                                smooth: true,
+                                lineStyle: { width: 2, color: '#2563eb' },
+                                showSymbol: false
+                            },
+                            {
+                                name: 'Signal',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: macd.signalLine,
+                                smooth: true,
+                                lineStyle: { width: 2, color: '#dc2626' },
+                                showSymbol: false
+                            },
+                            {
+                                name: 'Histogram',
+                                type: 'bar',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: macd.histogram,
+                                itemStyle: {
+                                    color: function(params) {
+                                        return params.value > 0 ? '#22c55e' : '#ef4444';
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    break;
+
+                case 'rsi':
+                    data = generateStockData(60, 'volatile');
+                    const rsi = calculateRSI(data);
+
+                    option = {
+                        title: {
+                            text: `${title} - 动态演示`,
+                            left: 'center',
+                            textStyle: { fontSize: 16 }
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'cross' }
+                        },
+                        legend: {
+                            data: ['K线', 'RSI'],
+                            top: 30
+                        },
+                        grid: [
+                            { left: '10%', right: '8%', height: '50%' },
+                            { left: '10%', right: '8%', top: '70%', height: '20%' }
+                        ],
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: data.map(item => item[0]),
+                                scale: true,
+                                boundaryGap: false
+                            },
+                            {
+                                type: 'category',
+                                gridIndex: 1,
+                                data: data.map(item => item[0]),
+                                scale: true,
+                                boundaryGap: false,
+                                axisLabel: { show: false }
+                            }
+                        ],
+                        yAxis: [
+                            { scale: true, splitArea: { show: true } },
+                            {
+                                gridIndex: 1,
+                                min: 0,
+                                max: 100,
+                                axisLine: { show: true },
+                                axisTick: { show: true },
+                                splitLine: {
+                                    show: true,
+                                    lineStyle: {
+                                        color: function(value) {
+                                            if (value === 70) return '#ef4444';
+                                            if (value === 30) return '#22c55e';
+                                            return '#e5e7eb';
+                                        }
+                                    }
+                                }
+                            }
+                        ],
+                        series: [
+                            {
+                                name: 'K线',
+                                type: 'candlestick',
+                                data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                                itemStyle: {
+                                    color: '#ef4444',
+                                    color0: '#22c55e',
+                                    borderColor: '#ef4444',
+                                    borderColor0: '#22c55e'
+                                }
+                            },
+                            {
+                                name: 'RSI',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: rsi,
+                                smooth: true,
+                                lineStyle: { width: 2, color: '#8b5cf6' },
+                                showSymbol: false,
+                                markLine: {
+                                    data: [
+                                        { yAxis: 70, lineStyle: { color: '#ef4444' }, label: { formatter: '超买线 70' } },
+                                        { yAxis: 30, lineStyle: { color: '#22c55e' }, label: { formatter: '超卖线 30' } }
+                                    ]
+                                }
+                            }
+                        ]
+                    };
+                    break;
+
+                case 'doji':
+                    data = generateCandlestickPattern('doji');
+
+                    option = {
+                        title: {
+                            text: `${title} - 形态识别`,
+                            left: 'center',
+                            textStyle: { fontSize: 16 }
+                        },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'cross' },
+                            formatter: function(params) {
+                                const param = params[0];
+                                const [open, close, low, high] = param.value;
+                                const isDoji = Math.abs(open - close) < (high - low) * 0.1;
+
+                                return `
+                                    <div style="padding: 8px;">
+                                        <div style="font-weight: bold; margin-bottom: 4px;">${param.name}</div>
+                                        <div>开盘: ${open}</div>
+                                        <div>收盘: ${close}</div>
+                                        <div>最高: ${high}</div>
+                                        <div>最低: ${low}</div>
+                                        <div style="color: ${isDoji ? '#f59e0b' : '#6b7280'}; font-weight: bold;">
+                                            ${isDoji ? '⭐ 十字星形态' : '普通K线'}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        xAxis: {
+                            type: 'category',
+                            data: data.map(item => item[0]),
+                            scale: true,
+                            boundaryGap: false
+                        },
+                        yAxis: {
+                            scale: true,
+                            splitArea: { show: true }
+                        },
+                        series: [{
+                            name: 'K线',
+                            type: 'candlestick',
+                            data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                            itemStyle: {
+                                color: '#ef4444',
+                                color0: '#22c55e',
+                                borderColor: '#ef4444',
+                                borderColor0: '#22c55e'
+                            },
+                            markPoint: {
+                                data: data.map((item, index) => {
+                                    const [open, close, low, high] = [item[1], item[2], item[3], item[4]];
+                                    const isDoji = Math.abs(open - close) < (high - low) * 0.1;
+
+                                    if (isDoji) {
+                                        return {
+                                            coord: [index, high + (high - low) * 0.1],
+                                            symbol: 'pin',
+                                            symbolSize: 30,
+                                            itemStyle: { color: '#f59e0b' },
+                                            label: {
+                                                formatter: '十字星',
+                                                color: '#f59e0b',
+                                                fontWeight: 'bold'
+                                            }
+                                        };
+                                    }
+                                    return null;
+                                }).filter(item => item !== null)
+                            }
+                        }]
+                    };
+                    break;
+
+                case 'support_resistance':
+                    data = generateStockData(60, 'volatile');
+                    // 计算支撑阻力位
+                    const highs = data.map(item => item[4]);
+                    const lows = data.map(item => item[3]);
+                    const maxPrice = Math.max(...highs);
+                    const minPrice = Math.min(...lows);
+                    const resistance = maxPrice * 0.98;
+                    const support = minPrice * 1.02;
+
+                    option = {
+                        title: { text: `${title} - 支撑阻力位识别`, left: 'center' },
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                        legend: { data: ['K线', '阻力位', '支撑位'], top: 30 },
+                        xAxis: { type: 'category', data: data.map(item => item[0]) },
+                        yAxis: { scale: true },
+                        series: [
+                            {
+                                name: 'K线',
+                                type: 'candlestick',
+                                data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                                itemStyle: {
+                                    color: '#ef4444',
+                                    color0: '#22c55e',
+                                    borderColor: '#ef4444',
+                                    borderColor0: '#22c55e'
+                                }
+                            },
+                            {
+                                name: '阻力位',
+                                type: 'line',
+                                data: new Array(data.length).fill(resistance),
+                                lineStyle: { color: '#ef4444', type: 'dashed', width: 2 },
+                                showSymbol: false
+                            },
+                            {
+                                name: '支撑位',
+                                type: 'line',
+                                data: new Array(data.length).fill(support),
+                                lineStyle: { color: '#22c55e', type: 'dashed', width: 2 },
+                                showSymbol: false
+                            }
+                        ]
+                    };
+                    break;
+
+                case 'kdj':
+                    data = generateStockData(60, 'volatile');
+                    const kdj = calculateKDJ(data);
+
+                    option = {
+                        title: { text: `${title} - KDJ指标演示`, left: 'center' },
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                        legend: { data: ['K线', 'K', 'D', 'J'], top: 30 },
+                        grid: [
+                            { left: '10%', right: '8%', height: '50%' },
+                            { left: '10%', right: '8%', top: '70%', height: '20%' }
+                        ],
+                        xAxis: [
+                            { type: 'category', data: data.map(item => item[0]) },
+                            { type: 'category', gridIndex: 1, data: data.map(item => item[0]), axisLabel: { show: false } }
+                        ],
+                        yAxis: [
+                            { scale: true },
+                            { gridIndex: 1, min: 0, max: 100, splitLine: { show: true } }
+                        ],
+                        series: [
+                            {
+                                name: 'K线',
+                                type: 'candlestick',
+                                data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                                itemStyle: {
+                                    color: '#ef4444',
+                                    color0: '#22c55e',
+                                    borderColor: '#ef4444',
+                                    borderColor0: '#22c55e'
+                                }
+                            },
+                            {
+                                name: 'K',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: kdj.K,
+                                smooth: true,
+                                lineStyle: { color: '#2563eb', width: 2 },
+                                showSymbol: false
+                            },
+                            {
+                                name: 'D',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: kdj.D,
+                                smooth: true,
+                                lineStyle: { color: '#dc2626', width: 2 },
+                                showSymbol: false
+                            },
+                            {
+                                name: 'J',
+                                type: 'line',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: kdj.J,
+                                smooth: true,
+                                lineStyle: { color: '#7c3aed', width: 2 },
+                                showSymbol: false
+                            }
+                        ]
+                    };
+                    break;
+
+                case 'volume_price':
+                    data = generateStockData(60, 'uptrend');
+
+                    option = {
+                        title: { text: `${title} - 量价关系分析`, left: 'center' },
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: { type: 'cross' },
+                            formatter: function(params) {
+                                const kData = params[0];
+                                const volData = params[1];
+                                if (!kData || !volData) return '';
+
+                                const [open, close, low, high] = kData.value;
+                                const volume = volData.value;
+                                const priceChange = close - open;
+                                const volumeChange = volume > 800000 ? '放量' : '缩量';
+                                const priceDirection = priceChange > 0 ? '上涨' : '下跌';
+
+                                return `
+                                    <div style="padding: 8px;">
+                                        <div style="font-weight: bold;">${kData.name}</div>
+                                        <div>开盘: ${open}</div>
+                                        <div>收盘: ${close}</div>
+                                        <div>成交量: ${volume.toLocaleString()}</div>
+                                        <div style="color: ${priceChange > 0 ? '#22c55e' : '#ef4444'}; font-weight: bold;">
+                                            量价关系: ${volumeChange}${priceDirection}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        },
+                        legend: { data: ['K线', '成交量'], top: 30 },
+                        grid: [
+                            { left: '10%', right: '8%', height: '60%' },
+                            { left: '10%', right: '8%', top: '75%', height: '20%' }
+                        ],
+                        xAxis: [
+                            { type: 'category', data: data.map(item => item[0]) },
+                            { type: 'category', gridIndex: 1, data: data.map(item => item[0]), axisLabel: { show: false } }
+                        ],
+                        yAxis: [
+                            { scale: true },
+                            { gridIndex: 1, axisLabel: { show: false } }
+                        ],
+                        series: [
+                            {
+                                name: 'K线',
+                                type: 'candlestick',
+                                data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                                itemStyle: {
+                                    color: '#ef4444',
+                                    color0: '#22c55e',
+                                    borderColor: '#ef4444',
+                                    borderColor0: '#22c55e'
+                                }
+                            },
+                            {
+                                name: '成交量',
+                                type: 'bar',
+                                xAxisIndex: 1,
+                                yAxisIndex: 1,
+                                data: data.map(item => item[5]),
+                                itemStyle: {
+                                    color: function(params) {
+                                        const dataIndex = params.dataIndex;
+                                        const kData = data[dataIndex];
+                                        return kData[2] >= kData[1] ? '#ef4444' : '#22c55e';
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    break;
+
+                default:
+                    data = generateStockData(60);
+                    option = {
+                        title: { text: title, left: 'center' },
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                        xAxis: { type: 'category', data: data.map(item => item[0]) },
+                        yAxis: { scale: true },
+                        series: [{
+                            type: 'candlestick',
+                            data: data.map(item => [item[1], item[2], item[3], item[4]]),
+                            itemStyle: {
+                                color: '#ef4444',
+                                color0: '#22c55e',
+                                borderColor: '#ef4444',
+                                borderColor0: '#22c55e'
+                            }
+                        }]
+                    };
+            }
+
+            chart.setOption(option);
+
+            // 添加动画效果
+            let currentIndex = 0;
+            const animationInterval = setInterval(() => {
+                if (currentIndex < data.length) {
+                    chart.dispatchAction({
+                        type: 'showTip',
+                        seriesIndex: 0,
+                        dataIndex: currentIndex
+                    });
+                    currentIndex++;
+                } else {
+                    clearInterval(animationInterval);
+                }
+            }, 200);
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('indicatorModal').classList.add('hidden');
+        }
+
+        // 初始化练习题目
+        function initPracticeQuestions() {
+            practiceQuestions = [
+                {
+                    type: 'pattern',
+                    question: '请识别下图中标记的K线形态：',
+                    chartData: generateCandlestickPattern('doji'),
+                    options: ['十字星', '锤子线', '流星线', '长阳线'],
+                    correct: 0,
+                    explanation: '十字星的特征是开盘价与收盘价相等或非常接近，形成十字形状，表示多空力量平衡。'
+                },
+                {
+                    type: 'pattern',
+                    question: '下图显示的是什么K线形态？',
+                    chartData: generateCandlestickPattern('hammer'),
+                    options: ['十字星', '锤子线', '流星线', '吞没形态'],
+                    correct: 1,
+                    explanation: '锤子线具有长下影线、短上影线和小实体的特征，通常出现在下降趋势的底部，是看涨反转信号。'
+                },
+                {
+                    type: 'signal',
+                    question: '根据RSI指标，当前应该采取什么操作？',
+                    chartData: generateStockData(40, 'volatile'),
+                    rsiValue: 75,
+                    options: ['买入', '卖出', '持有', '加仓'],
+                    correct: 1,
+                    explanation: 'RSI值为75，超过70的超买线，表示价格可能过高，面临回调压力，应该考虑卖出。'
+                },
+                {
+                    type: 'signal',
+                    question: 'RSI指标显示什么信号？',
+                    chartData: generateStockData(40, 'downtrend'),
+                    rsiValue: 25,
+                    options: ['强烈买入', '强烈卖出', '中性', '观望'],
+                    correct: 0,
+                    explanation: 'RSI值为25，低于30的超卖线，表示价格可能过低，面临反弹机会，是强烈买入信号。'
+                },
+                {
+                    type: 'macd',
+                    question: 'MACD指标显示什么信号？',
+                    chartData: generateStockData(50, 'uptrend'),
+                    signal: 'golden_cross',
+                    options: ['金叉买入', '死叉卖出', '背离警告', '震荡整理'],
+                    correct: 0,
+                    explanation: 'MACD线上穿信号线形成金叉，表示上升动能增强，是买入信号。'
+                },
+                {
+                    type: 'pattern',
+                    question: '识别图中的K线形态：',
+                    chartData: generateCandlestickPattern('shooting_star'),
+                    options: ['锤子线', '流星线', '十字星', '纺锤线'],
+                    correct: 1,
+                    explanation: '流星线具有长上影线、短下影线和小实体的特征，通常出现在上升趋势的顶部，是看跌反转信号。'
+                },
+                {
+                    type: 'signal',
+                    question: '当RSI在50附近时，表示什么？',
+                    chartData: generateStockData(30, 'sideways'),
+                    rsiValue: 52,
+                    options: ['超买', '超卖', '中性区域', '强势上涨'],
+                    correct: 2,
+                    explanation: 'RSI在50附近表示处于中性区域，多空力量相对平衡，没有明显的超买或超卖信号。'
+                },
+                {
+                    type: 'comprehensive',
+                    question: '综合分析：价格上涨但RSI下降，这表示什么？',
+                    chartData: generateStockData(40, 'uptrend'),
+                    options: ['趋势加强', '顶背离', '底背离', '正常现象'],
+                    correct: 1,
+                    explanation: '价格上涨但RSI下降形成顶背离，表示上涨动能减弱，可能是趋势反转的早期信号。'
+                },
+                {
+                    type: 'pattern',
+                    question: '连续出现多个十字星表示什么？',
+                    chartData: generateStockData(30, 'sideways'),
+                    options: ['强势突破', '市场犹豫', '趋势延续', '成交活跃'],
+                    correct: 1,
+                    explanation: '连续出现多个十字星表示市场极度犹豫不决，多空双方势均力敌，通常预示着重要变化即将到来。'
+                },
+                {
+                    type: 'comprehensive',
+                    question: '在支撑位附近出现锤子线，最可能的后续走势是？',
+                    chartData: generateCandlestickPattern('hammer'),
+                    options: ['继续下跌', '反弹上涨', '横盘整理', '无法判断'],
+                    correct: 1,
+                    explanation: '在支撑位附近出现锤子线是强烈的看涨信号，表示下跌动能衰竭，买方力量增强，最可能出现反弹上涨。'
+                },
+                {
+                    type: 'theory',
+                    question: '根据道氏理论，市场有几种趋势？',
+                    options: ['2种', '3种', '4种', '5种'],
+                    correct: 1,
+                    explanation: '道氏理论认为市场有三种趋势：主要趋势（1-3年）、次要趋势（3周-3个月）、短暂波动（数小时到数周）。'
+                },
+                {
+                    type: 'volume',
+                    question: '价格上涨但成交量萎缩，这种情况说明什么？',
+                    chartData: generateStockData(30, 'uptrend'),
+                    options: ['上涨动能强劲', '上涨乏力可能见顶', '正常的上涨', '准备加速上涨'],
+                    correct: 1,
+                    explanation: '价涨量缩是量价背离的表现，说明上涨缺乏成交量支撑，上涨动能不足，可能面临调整或见顶。'
+                },
+                {
+                    type: 'support_resistance',
+                    question: '当价格突破重要阻力位后，该位置通常会变成什么？',
+                    options: ['继续阻力', '支撑位', '无意义', '新的高点'],
+                    correct: 1,
+                    explanation: '这是支撑阻力转换的经典原理：当价格有效突破阻力位后，原来的阻力位往往会转换为新的支撑位。'
+                },
+                {
+                    type: 'kdj',
+                    question: 'KDJ指标中，哪个值变化最敏感？',
+                    options: ['K值', 'D值', 'J值', '都一样'],
+                    correct: 2,
+                    explanation: 'J值是KDJ指标中最敏感的，计算公式为J=3K-2D，因此J值变化最快，常用作先行指标。'
+                }
+            ];
+        }
+
+        // 开始练习
+        function startPractice() {
+            initPracticeQuestions();
+            currentPracticeQuestion = 0;
+            practiceScore = 0;
+            document.getElementById('practiceModal').classList.remove('hidden');
+            showPracticeQuestion();
+        }
+
+        // 显示练习题目
+        function showPracticeQuestion() {
+            const question = practiceQuestions[currentPracticeQuestion];
+            document.getElementById('currentQuestion').textContent = currentPracticeQuestion + 1;
+            document.getElementById('totalQuestions').textContent = practiceQuestions.length;
+            document.getElementById('currentScore').textContent = practiceScore;
+
+            const content = document.getElementById('practiceContent');
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-2">${question.question}</h3>
+                        ${question.rsiValue ? `<p class="text-blue-700">当前RSI值: ${question.rsiValue}</p>` : ''}
+                    </div>
+
+                    <div id="practiceChart" style="width: 100%; height: 300px; border: 1px solid #e5e7eb; border-radius: 8px;"></div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${question.options.map((option, index) => `
+                            <button onclick="selectAnswer(${index})"
+                                    class="practice-option p-4 text-left border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                                <span class="font-medium">${String.fromCharCode(65 + index)}.</span> ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div id="answerFeedback" class="hidden"></div>
+                </div>
+            `;
+
+            // 显示图表
+            setTimeout(() => {
+                showPracticeChart(question);
+            }, 100);
+        }
+
+        // 显示练习图表
+        function showPracticeChart(question) {
+            const chart = echarts.init(document.getElementById('practiceChart'));
+            let option;
+
+            if (question.type === 'signal' || question.type === 'comprehensive') {
+                // RSI相关题目
+                const rsi = calculateRSI(question.chartData);
+
+                option = {
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                    grid: [
+                        { left: '10%', right: '8%', height: '60%' },
+                        { left: '10%', right: '8%', top: '75%', height: '20%' }
+                    ],
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: question.chartData.map(item => item[0]),
+                            scale: true,
+                            boundaryGap: false
+                        },
+                        {
+                            type: 'category',
+                            gridIndex: 1,
+                            data: question.chartData.map(item => item[0]),
+                            scale: true,
+                            boundaryGap: false,
+                            axisLabel: { show: false }
+                        }
+                    ],
+                    yAxis: [
+                        { scale: true },
+                        {
+                            gridIndex: 1,
+                            min: 0,
+                            max: 100,
+                            splitLine: {
+                                show: true,
+                                lineStyle: {
+                                    color: function(value) {
+                                        if (value === 70) return '#ef4444';
+                                        if (value === 30) return '#22c55e';
+                                        return '#e5e7eb';
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    series: [
+                        {
+                            type: 'candlestick',
+                            data: question.chartData.map(item => [item[1], item[2], item[3], item[4]]),
+                            itemStyle: {
+                                color: '#ef4444',
+                                color0: '#22c55e',
+                                borderColor: '#ef4444',
+                                borderColor0: '#22c55e'
+                            }
+                        },
+                        {
+                            name: 'RSI',
+                            type: 'line',
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            data: rsi,
+                            smooth: true,
+                            lineStyle: { width: 2, color: '#8b5cf6' },
+                            showSymbol: false
+                        }
+                    ]
+                };
+            } else if (question.type === 'macd') {
+                // MACD相关题目
+                const macd = calculateMACD(question.chartData);
+
+                option = {
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
+                    grid: [
+                        { left: '10%', right: '8%', height: '50%' },
+                        { left: '10%', right: '8%', top: '70%', height: '25%' }
+                    ],
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: question.chartData.map(item => item[0]),
+                            scale: true,
+                            boundaryGap: false
+                        },
+                        {
+                            type: 'category',
+                            gridIndex: 1,
+                            data: question.chartData.map(item => item[0]),
+                            scale: true,
+                            boundaryGap: false,
+                            axisLabel: { show: false }
+                        }
+                    ],
+                    yAxis: [
+                        { scale: true },
+                        { gridIndex: 1, scale: true }
+                    ],
+                    series: [
+                        {
+                            type: 'candlestick',
+                            data: question.chartData.map(item => [item[1], item[2], item[3], item[4]]),
+                            itemStyle: {
+                                color: '#ef4444',
+                                color0: '#22c55e',
+                                borderColor: '#ef4444',
+                                borderColor0: '#22c55e'
+                            }
+                        },
+                        {
+                            name: 'MACD',
+                            type: 'line',
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            data: macd.macdLine,
+                            smooth: true,
+                            lineStyle: { width: 2, color: '#2563eb' },
+                            showSymbol: false
+                        },
+                        {
+                            name: 'Signal',
+                            type: 'line',
+                            xAxisIndex: 1,
+                            yAxisIndex: 1,
+                            data: macd.signalLine,
+                            smooth: true,
+                            lineStyle: { width: 2, color: '#dc2626' },
+                            showSymbol: false
+                        }
+                    ]
+                };
+            } else {
+                // K线形态题目
+                option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'cross' },
+                        formatter: function(params) {
+                            const param = params[0];
+                            const [open, close, low, high] = param.value;
+                            return `
+                                <div style="padding: 8px;">
+                                    <div style="font-weight: bold; margin-bottom: 4px;">${param.name}</div>
+                                    <div>开盘: ${open}</div>
+                                    <div>收盘: ${close}</div>
+                                    <div>最高: ${high}</div>
+                                    <div>最低: ${low}</div>
+                                </div>
+                            `;
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: question.chartData.map(item => item[0]),
+                        scale: true,
+                        boundaryGap: false
+                    },
+                    yAxis: {
+                        scale: true
+                    },
+                    series: [{
+                        type: 'candlestick',
+                        data: question.chartData.map(item => [item[1], item[2], item[3], item[4]]),
+                        itemStyle: {
+                            color: '#ef4444',
+                            color0: '#22c55e',
+                            borderColor: '#ef4444',
+                            borderColor0: '#22c55e'
+                        },
+                        markPoint: {
+                            data: [{
+                                coord: [question.chartData.length - 5, question.chartData[question.chartData.length - 5][4] * 1.02],
+                                symbol: 'pin',
+                                symbolSize: 40,
+                                itemStyle: { color: '#f59e0b' },
+                                label: {
+                                    formatter: '关键形态',
+                                    color: '#f59e0b',
+                                    fontWeight: 'bold'
+                                }
+                            }]
+                        }
+                    }]
+                };
+            }
+
+            chart.setOption(option);
+        }
+
+        // 选择答案
+        function selectAnswer(selectedIndex) {
+            const question = practiceQuestions[currentPracticeQuestion];
+            const isCorrect = selectedIndex === question.correct;
+
+            if (isCorrect) {
+                practiceScore += 10;
+            }
+
+            // 显示反馈
+            const feedback = document.getElementById('answerFeedback');
+            feedback.className = `p-4 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+            feedback.innerHTML = `
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-2">${isCorrect ? '✅' : '❌'}</span>
+                    <strong class="${isCorrect ? 'text-green-800' : 'text-red-800'}">
+                        ${isCorrect ? '回答正确！' : '回答错误'}
+                    </strong>
+                </div>
+                <p class="${isCorrect ? 'text-green-700' : 'text-red-700'}">${question.explanation}</p>
+                <button onclick="nextQuestion()" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    ${currentPracticeQuestion < practiceQuestions.length - 1 ? '下一题' : '查看结果'}
+                </button>
+            `;
+            feedback.classList.remove('hidden');
+
+            // 禁用选项按钮
+            document.querySelectorAll('.practice-option').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+
+            // 高亮正确答案
+            document.querySelectorAll('.practice-option').forEach((btn, index) => {
+                if (index === question.correct) {
+                    btn.classList.add('border-green-500', 'bg-green-50');
+                } else if (index === selectedIndex && !isCorrect) {
+                    btn.classList.add('border-red-500', 'bg-red-50');
+                }
+            });
+        }
+
+        // 下一题
+        function nextQuestion() {
+            currentPracticeQuestion++;
+            if (currentPracticeQuestion < practiceQuestions.length) {
+                showPracticeQuestion();
+            } else {
+                showPracticeResult();
+            }
+        }
+
+        // 显示练习结果
+        function showPracticeResult() {
+            document.getElementById('practiceModal').classList.add('hidden');
+
+            const totalScore = practiceQuestions.length * 10;
+            const percentage = (practiceScore / totalScore) * 100;
+
+            let icon, title, message;
+
+            if (percentage >= 90) {
+                icon = '🏆';
+                title = '优秀！';
+                message = `你获得了 ${practiceScore}/${totalScore} 分！技术分析能力很强！`;
+            } else if (percentage >= 70) {
+                icon = '🎉';
+                title = '良好！';
+                message = `你获得了 ${practiceScore}/${totalScore} 分！继续加油！`;
+            } else if (percentage >= 60) {
+                icon = '👍';
+                title = '及格！';
+                message = `你获得了 ${practiceScore}/${totalScore} 分！还有提升空间！`;
+            } else {
+                icon = '📚';
+                title = '需要加强';
+                message = `你获得了 ${practiceScore}/${totalScore} 分！建议多学习技术指标知识！`;
+            }
+
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('practiceResultModal').classList.remove('hidden');
+        }
+
+        // 重新开始练习
+        function restartPractice() {
+            document.getElementById('practiceResultModal').classList.add('hidden');
+            startPractice();
+        }
+
+        // 关闭练习
+        function closePractice() {
+            document.getElementById('practiceModal').classList.add('hidden');
+        }
+
+        // 关闭练习结果
+        function closePracticeResult() {
+            document.getElementById('practiceResultModal').classList.add('hidden');
+        }
+
+        // 滚动到指定部分
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initHeroChart();
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('indicatorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

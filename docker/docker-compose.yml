@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # 前端应用
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: stock-analysis-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - stock-analysis-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx 反向代理（可选，用于多服务）
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: stock-analysis-proxy
+    ports:
+      - "443:443"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+    restart: unless-stopped
+    networks:
+      - stock-analysis-network
+
+networks:
+  stock-analysis-network:
+    driver: bridge
+
+volumes:
+  ssl-certs:
+    driver: local
