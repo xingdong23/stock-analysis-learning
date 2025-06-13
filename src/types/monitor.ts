@@ -16,10 +16,12 @@ export interface StockAlert {
 export interface TechnicalIndicator {
   type: IndicatorType;
   period?: number; // 周期，如MA20的20
+  periods?: number[]; // 多个周期，用于均线缠绕等
+  threshold?: number; // 阈值，用于缠绕判断或距离判断
   parameters?: Record<string, number>; // 其他参数
 }
 
-export type IndicatorType = 
+export type IndicatorType =
   | 'MA' // 移动平均线
   | 'EMA' // 指数移动平均线
   | 'RSI' // 相对强弱指数
@@ -27,15 +29,21 @@ export type IndicatorType =
   | 'BOLL' // 布林带
   | 'KDJ' // KDJ指标
   | 'PRICE' // 价格本身
-  | 'VOLUME'; // 成交量
+  | 'VOLUME' // 成交量
+  | 'MA_CONVERGENCE' // 均线缠绕
+  | 'MA_PROXIMITY'; // 均线附近
 
-export type AlertCondition = 
+export type AlertCondition =
   | 'ABOVE' // 高于
   | 'BELOW' // 低于
   | 'CROSS_ABOVE' // 向上突破
   | 'CROSS_BELOW' // 向下突破
   | 'EQUAL' // 等于（在误差范围内）
-  | 'PERCENT_CHANGE'; // 百分比变化
+  | 'PERCENT_CHANGE' // 百分比变化
+  | 'CONVERGING' // 正在缠绕
+  | 'DIVERGING' // 正在发散
+  | 'NEAR' // 接近
+  | 'WITHIN_RANGE'; // 在范围内
 
 export interface AlertTrigger {
   alertId: string;
@@ -163,5 +171,33 @@ export const ALERT_RULES: AlertRule[] = [
     indicator: { type: 'RSI', period: 14 },
     condition: 'BELOW',
     example: '当RSI < 30时提醒超卖'
+  },
+  {
+    name: '均线缠绕',
+    description: '多条均线相互缠绕，市场震荡整理',
+    indicator: { type: 'MA_CONVERGENCE', periods: [5, 10, 20], threshold: 2 },
+    condition: 'CONVERGING',
+    example: '当MA5、MA10、MA20缠绕时提醒'
+  },
+  {
+    name: '均线发散',
+    description: '多条均线开始发散，趋势明确',
+    indicator: { type: 'MA_CONVERGENCE', periods: [5, 10, 20], threshold: 2 },
+    condition: 'DIVERGING',
+    example: '当均线从缠绕状态发散时提醒'
+  },
+  {
+    name: '接近均线',
+    description: '股价接近重要均线支撑阻力位',
+    indicator: { type: 'MA_PROXIMITY', period: 20, threshold: 2 },
+    condition: 'NEAR',
+    example: '当股价接近MA20时提醒'
+  },
+  {
+    name: '均线附近震荡',
+    description: '股价在均线附近小幅震荡',
+    indicator: { type: 'MA_PROXIMITY', period: 20, threshold: 1 },
+    condition: 'WITHIN_RANGE',
+    example: '当股价在MA20±1%范围内震荡时提醒'
   }
 ];

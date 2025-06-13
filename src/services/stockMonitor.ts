@@ -167,7 +167,9 @@ export class StockMonitorService {
       const currentIndicatorValue = TechnicalIndicatorService.getLatestIndicatorValue(
         candlesticks,
         alert.indicator.type,
-        alert.indicator.period
+        alert.indicator.period,
+        alert.indicator.periods,
+        alert.indicator.threshold
       );
 
       if (currentIndicatorValue === null) return false;
@@ -183,28 +185,98 @@ export class StockMonitorService {
       switch (alert.condition) {
         case 'ABOVE':
           return alert.targetValue ? currentPrice > alert.targetValue : false;
-          
+
         case 'BELOW':
           return alert.targetValue ? currentPrice < alert.targetValue : false;
-          
+
         case 'CROSS_ABOVE':
           if (!alert.targetValue || previousIndicatorValue === undefined) return false;
           return TechnicalIndicatorService.checkCrossover(
-            currentPrice, 
-            previousIndicatorValue, 
-            currentIndicatorValue, 
+            currentPrice,
+            previousIndicatorValue,
+            currentIndicatorValue,
             'above'
           );
-          
+
         case 'CROSS_BELOW':
           if (!alert.targetValue || previousIndicatorValue === undefined) return false;
           return TechnicalIndicatorService.checkCrossover(
-            currentPrice, 
-            previousIndicatorValue, 
-            currentIndicatorValue, 
+            currentPrice,
+            previousIndicatorValue,
+            currentIndicatorValue,
             'below'
           );
-          
+
+        case 'CONVERGING': {
+          // 均线缠绕检测
+          if (alert.indicator.type !== 'MA_CONVERGENCE') return false;
+          const convergenceStatus = TechnicalIndicatorService.getLatestConvergenceStatus(
+            candlesticks,
+            alert.indicator.periods || [5, 10, 20],
+            alert.indicator.threshold || 2
+          );
+          return convergenceStatus ? convergenceStatus.isConverging : false;
+        }
+
+        case 'DIVERGING': {
+          // 均线发散检测
+          if (alert.indicator.type !== 'MA_CONVERGENCE') return false;
+          const convergenceStatus = TechnicalIndicatorService.getLatestConvergenceStatus(
+            candlesticks,
+            alert.indicator.periods || [5, 10, 20],
+            alert.indicator.threshold || 2
+          );
+
+          // 检查是否从缠绕状态转为发散
+          const lastValueKey = `${alert.symbol}_convergence_${alert.indicator.periods?.join('_')}`;
+          const previousConvergence = this.lastValues.get(lastValueKey);
+
+          if (convergenceStatus) {
+            this.lastValues.set(lastValueKey, convergenceStatus.isConverging ? 1 : 0);
+
+            if (previousConvergence === 1 && !convergenceStatus.isConverging) {
+              return true; // 从缠绕转为发散
+            }
+          }
+          return false;
+        }
+
+        case 'NEAR': {
+          // 接近均线检测
+          if (alert.indicator.type !== 'MA_PROXIMITY') return false;
+          const maValue = TechnicalIndicatorService.getLatestIndicatorValue(
+            candlesticks,
+            'ma',
+            alert.indicator.period
+          );
+          if (maValue === null) return false;
+
+          const proximity = TechnicalIndicatorService.checkMAProximity(
+            currentPrice,
+            maValue,
+            alert.indicator.threshold || 2
+          );
+          return proximity.isNear;
+        }
+
+        case 'WITHIN_RANGE': {
+          // 在均线附近范围内
+          if (alert.indicator.type !== 'MA_PROXIMITY') return false;
+          const maValue = TechnicalIndicatorService.getLatestIndicatorValue(
+            candlesticks,
+            'ma',
+            alert.indicator.period
+          );
+          if (maValue === null) return false;
+
+          const proximity = TechnicalIndicatorService.checkMAProximity(
+            currentPrice,
+            maValue,
+            alert.indicator.threshold || 1
+          );
+          return proximity.isWithinRange;
+        }
+
         default:
           return false;
       }
@@ -252,7 +324,7 @@ export class StockMonitorService {
     const price = parseFloat(quote.last_done);
     const symbol = alert.symbol;
     const indicatorName = alert.indicator.type + (alert.indicator.period ? alert.indicator.period : '');
-    
+
     switch (alert.condition) {
       case 'ABOVE':
         return `${symbol} 价格 $${price} 高于 ${alert.targetValue}`;
@@ -262,6 +334,16 @@ export class StockMonitorService {
         return `${symbol} 价格 $${price} 向上突破 ${indicatorName}`;
       case 'CROSS_BELOW':
         return `${symbol} 价格 $${price} 跌破 ${indicatorName}`;
+      case 'CONVERGING':
+        const periods = alert.indicator.periods?.join(',') || '5,10,20';
+        return `${symbol} 均线缠绕 MA(${periods}) 价格 $${price}`;
+      case 'DIVERGING':
+        const divergePeriods = alert.indicator.periods?.join(',') || '5,10,20';
+        return `${symbol} 均线发散 MA(${divergePeriods}) 价格 $${price}`;
+      case 'NEAR':
+        return `${symbol} 价格 $${price} 接近 ${indicatorName}`;
+      case 'WITHIN_RANGE':
+        return `${symbol} 价格 $${price} 在 ${indicatorName} 附近震荡`;
       default:
         return `${symbol} 触发预警条件`;
     }

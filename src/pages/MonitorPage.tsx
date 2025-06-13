@@ -99,6 +99,33 @@ const MonitorPage: React.FC = () => {
     monitorService.removeAlert(alertId);
   };
 
+  // 格式化预警描述
+  const formatAlertDescription = (alert: StockAlert): string => {
+    const { indicator, condition, targetValue } = alert;
+
+    switch (indicator.type) {
+      case 'MA_CONVERGENCE':
+        const periods = indicator.periods?.join(', ') || '5, 10, 20';
+        return `均线缠绕 MA(${periods}) ${condition === 'CONVERGING' ? '正在缠绕' : '开始发散'} (阈值: ${indicator.threshold || 2}%)`;
+
+      case 'MA_PROXIMITY':
+        const proximityDesc = condition === 'NEAR' ? '接近' : '在附近震荡';
+        return `${proximityDesc} MA${indicator.period} (距离: ±${indicator.threshold || 2}%)`;
+
+      case 'MA':
+        return `MA${indicator.period} ${condition === 'CROSS_ABOVE' ? '向上突破' : condition === 'CROSS_BELOW' ? '跌破' : condition}`;
+
+      case 'RSI':
+        return `RSI${indicator.period || 14} ${condition} ${targetValue || (condition === 'ABOVE' ? '70' : '30')}`;
+
+      case 'PRICE':
+        return `价格 ${condition === 'ABOVE' ? '高于' : '低于'} $${targetValue}`;
+
+      default:
+        return `${indicator.type}${indicator.period || ''} ${condition} ${targetValue || ''}`;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -243,7 +270,7 @@ const MonitorPage: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-gray-700">
-                            {alert.indicator.type}{alert.indicator.period} {alert.condition} {alert.targetValue}
+                            {formatAlertDescription(alert)}
                           </p>
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                             <span>触发次数: {alert.triggerCount}</span>
@@ -338,6 +365,8 @@ const AddAlertModal: React.FC<{
     name: '',
     indicatorType: 'MA',
     period: 20,
+    periods: [5, 10, 20],
+    threshold: 2,
     condition: 'CROSS_BELOW',
     targetValue: 0
   });
@@ -351,7 +380,9 @@ const AddAlertModal: React.FC<{
       name: formData.name,
       indicator: {
         type: formData.indicatorType as any,
-        period: formData.period
+        period: formData.period,
+        periods: formData.indicatorType === 'MA_CONVERGENCE' ? formData.periods : undefined,
+        threshold: ['MA_CONVERGENCE', 'MA_PROXIMITY'].includes(formData.indicatorType) ? formData.threshold : undefined
       },
       condition: formData.condition as any,
       targetValue: formData.targetValue || undefined,
@@ -432,6 +463,99 @@ const AddAlertModal: React.FC<{
                 onChange={(e) => setFormData(prev => ({ ...prev, period: parseInt(e.target.value) }))}
                 min="1"
                 max="200"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          )}
+
+          {formData.indicatorType === 'MA_CONVERGENCE' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  均线周期组合
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {formData.periods.map((period, index) => (
+                    <input
+                      key={index}
+                      type="number"
+                      value={period}
+                      onChange={(e) => {
+                        const newPeriods = [...formData.periods];
+                        newPeriods[index] = parseInt(e.target.value);
+                        setFormData(prev => ({ ...prev, periods: newPeriods }));
+                      }}
+                      min="1"
+                      max="200"
+                      placeholder={`MA${index + 1}`}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">默认: MA5, MA10, MA20</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  缠绕阈值 (%)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.threshold}
+                  onChange={(e) => setFormData(prev => ({ ...prev, threshold: parseFloat(e.target.value) }))}
+                  min="0.1"
+                  max="10"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">均线差距小于此值时认为缠绕</p>
+              </div>
+            </>
+          )}
+
+          {formData.indicatorType === 'MA_PROXIMITY' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  均线周期
+                </label>
+                <input
+                  type="number"
+                  value={formData.period}
+                  onChange={(e) => setFormData(prev => ({ ...prev, period: parseInt(e.target.value) }))}
+                  min="1"
+                  max="200"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  距离阈值 (%)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.threshold}
+                  onChange={(e) => setFormData(prev => ({ ...prev, threshold: parseFloat(e.target.value) }))}
+                  min="0.1"
+                  max="10"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">股价与均线距离小于此值时触发</p>
+              </div>
+            </>
+          )}
+
+          {formData.indicatorType === 'RSI' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                RSI周期
+              </label>
+              <input
+                type="number"
+                value={formData.period}
+                onChange={(e) => setFormData(prev => ({ ...prev, period: parseInt(e.target.value) }))}
+                min="1"
+                max="50"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>

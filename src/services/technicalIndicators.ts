@@ -224,7 +224,9 @@ export class TechnicalIndicatorService {
   static getLatestIndicatorValue(
     candlesticks: LongPortCandlestick[],
     indicatorType: string,
-    period?: number
+    period?: number,
+    periods?: number[],
+    threshold?: number
   ): number | null {
     if (candlesticks.length === 0) return null;
 
@@ -234,26 +236,45 @@ export class TechnicalIndicatorService {
         const maResults = this.calculateMA(candlesticks, period);
         return maResults.length > 0 ? maResults[maResults.length - 1].value : null;
       }
-      
+
       case 'ema': {
         if (!period) return null;
         const emaResults = this.calculateEMA(candlesticks, period);
         return emaResults.length > 0 ? emaResults[emaResults.length - 1].value : null;
       }
-      
+
       case 'rsi': {
         const rsiResults = this.calculateRSI(candlesticks, period || 14);
         return rsiResults.length > 0 ? rsiResults[rsiResults.length - 1].value : null;
       }
-      
+
       case 'price': {
         return parseFloat(candlesticks[candlesticks.length - 1].close);
       }
-      
+
       case 'volume': {
         return candlesticks[candlesticks.length - 1].volume;
       }
-      
+
+      case 'ma_convergence': {
+        const convergenceStatus = this.getLatestConvergenceStatus(
+          candlesticks,
+          periods || [5, 10, 20],
+          threshold || 2
+        );
+        return convergenceStatus ? convergenceStatus.convergenceRatio : null;
+      }
+
+      case 'ma_proximity': {
+        if (!period) return null;
+        const currentPrice = parseFloat(candlesticks[candlesticks.length - 1].close);
+        const maValue = this.getLatestIndicatorValue(candlesticks, 'ma', period);
+        if (maValue === null) return null;
+
+        const proximity = this.checkMAProximity(currentPrice, maValue, threshold || 2);
+        return proximity.distance;
+      }
+
       default:
         return null;
     }
@@ -271,5 +292,121 @@ export class TechnicalIndicatorService {
     } else {
       return previousValue >= targetValue && currentValue < targetValue;
     }
+  }
+
+  // 计算均线缠绕状态
+  static calculateMAConvergence(
+    candlesticks: LongPortCandlestick[],
+    periods: number[] = [5, 10, 20],
+    threshold: number = 2
+  ): Array<{
+    timestamp: number;
+    isConverging: boolean;
+    convergenceRatio: number; // 缠绕程度 (0-100%)
+    maValues: number[]; // 各均线值
+  }> {
+    const results: Array<{
+      timestamp: number;
+      isConverging: boolean;
+      convergenceRatio: number;
+      maValues: number[];
+    }> = [];
+
+    if (candlesticks.length < Math.max(...periods)) {
+      return results;
+    }
+
+    // 计算所有周期的均线
+    const maResults = periods.map(period => this.calculateMA(candlesticks, period));
+
+    // 找到最短的均线数据长度
+    const minLength = Math.min(...maResults.map(ma => ma.length));
+
+    for (let i = 0; i < minLength; i++) {
+      const maValues = maResults.map(ma => ma[i].value);
+      const maxMA = Math.max(...maValues);
+      const minMA = Math.min(...maValues);
+
+      // 计算缠绕程度：(最大值-最小值)/平均值 * 100%
+      const avgMA = maValues.reduce((sum, val) => sum + val, 0) / maValues.length;
+      const convergenceRatio = ((maxMA - minMA) / avgMA) * 100;
+
+      // 判断是否缠绕：差距小于阈值
+      const isConverging = convergenceRatio <= threshold;
+
+      results.push({
+        timestamp: maResults[0][i].timestamp,
+        isConverging,
+        convergenceRatio,
+        maValues
+      });
+    }
+
+    return results;
+  }
+
+  // 检查股价与均线的距离
+  static checkMAProximity(
+    currentPrice: number,
+    maValue: number,
+    threshold: number = 2
+  ): {
+    distance: number; // 距离百分比
+    isNear: boolean; // 是否接近
+    isWithinRange: boolean; // 是否在范围内
+    direction: 'above' | 'below' | 'on'; // 相对位置
+  } {
+    const distance = Math.abs((currentPrice - maValue) / maValue) * 100;
+    const isNear = distance <= threshold;
+    const isWithinRange = distance <= threshold / 2; // 更严格的范围
+
+    let direction: 'above' | 'below' | 'on' = 'on';
+    if (currentPrice > maValue) {
+      direction = 'above';
+    } else if (currentPrice < maValue) {
+      direction = 'below';
+    }
+
+    return {
+      distance,
+      isNear,
+      isWithinRange,
+      direction
+    };
+  }
+
+  // 检测均线缠绕状态变化
+  static detectConvergenceChange(
+    currentConvergence: boolean,
+    previousConvergence: boolean
+  ): 'converging' | 'diverging' | 'stable' {
+    if (!previousConvergence && currentConvergence) {
+      return 'converging'; // 开始缠绕
+    } else if (previousConvergence && !currentConvergence) {
+      return 'diverging'; // 开始发散
+    } else {
+      return 'stable'; // 状态未变
+    }
+  }
+
+  // 获取最新的均线缠绕状态
+  static getLatestConvergenceStatus(
+    candlesticks: LongPortCandlestick[],
+    periods: number[] = [5, 10, 20],
+    threshold: number = 2
+  ): {
+    isConverging: boolean;
+    convergenceRatio: number;
+    maValues: number[];
+  } | null {
+    const convergenceData = this.calculateMAConvergence(candlesticks, periods, threshold);
+    if (convergenceData.length === 0) return null;
+
+    const latest = convergenceData[convergenceData.length - 1];
+    return {
+      isConverging: latest.isConverging,
+      convergenceRatio: latest.convergenceRatio,
+      maValues: latest.maValues
+    };
   }
 }
