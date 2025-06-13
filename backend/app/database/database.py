@@ -278,3 +278,8 @@ def get_database_stats():
 def check_database_health():
     """检查数据库健康状态"""
     return db_manager.health_check()
+
+
+def get_session_factory():
+    """获取会话工厂"""
+    return db_manager.session_factory if db_manager.is_initialized else None

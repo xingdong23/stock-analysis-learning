@@ -117,10 +117,14 @@ def get_db():
     """
     获取数据库会话（FastAPI依赖）
     """
-    if SessionLocal is None:
+    # 动态导入以避免循环导入
+    from app.database.database import get_session_factory
+
+    session_factory = get_session_factory()
+    if session_factory is None:
         raise RuntimeError("数据库未初始化")
-    
-    db = SessionLocal()
+
+    db = session_factory()
     try:
         yield db
     finally:
