@@ -92,11 +92,11 @@ class StockAlert(Base):
                 "parameters": self.indicator_parameters
             },
             "condition": self.condition,
-            "targetValue": float(self.target_value) if self.target_value else None,
-            "isActive": self.is_active,
-            "triggerCount": self.trigger_count,
-            "lastTriggered": self.last_triggered.isoformat() if self.last_triggered else None,
-            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "target_value": float(self.target_value) if self.target_value else None,
+            "is_active": self.is_active,
+            "trigger_count": self.trigger_count,
+            "last_triggered": self.last_triggered,
+            "created_at": self.created_at,
             "description": self.description,
             "priority": self.priority,
             "tags": self.tags

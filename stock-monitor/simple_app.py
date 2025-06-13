@@ -77,100 +77,172 @@ class SimpleStockDataProvider:
         return None
     
     def _get_from_yahoo_v7(self, symbol: str, period: str) -> Optional[pd.DataFrame]:
-        """使用Yahoo Finance v7 API"""
+        """使用Yahoo Finance v7 API (CSV格式)"""
         try:
             # 计算时间范围
             end_time = int(datetime.now().timestamp())
-            start_time = int((datetime.now() - timedelta(days=30)).timestamp())
-            
+            start_time = int((datetime.now() - timedelta(days=90)).timestamp())  # 增加到90天
+
             url = f"https://query1.finance.yahoo.com/v7/finance/download/{symbol}"
             params = {
                 'period1': start_time,
                 'period2': end_time,
                 'interval': '1d',
-                'events': 'history'
+                'events': 'history',
+                'includeAdjustedClose': 'true'
             }
-            
+
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/csv,application/csv,*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Cache-Control': 'max-age=0'
             }
-            
-            response = requests.get(url, params=params, headers=headers, timeout=10)
+
+            response = requests.get(url, params=params, headers=headers, timeout=15)
             response.raise_for_status()
-            
+
+            # 检查响应内容
+            if 'Date,Open,High,Low,Close' not in response.text:
+                logger.warning(f"Yahoo v7 API返回非CSV格式: {response.text[:100]}")
+                return None
+
             # 解析CSV数据
             from io import StringIO
             df = pd.read_csv(StringIO(response.text))
-            
+
             if df.empty:
+                logger.warning(f"Yahoo v7 API返回空数据: {symbol}")
                 return None
-            
+
             # 标准化列名和数据
             df['Date'] = pd.to_datetime(df['Date'])
             df.set_index('Date', inplace=True)
             df.columns = [col.lower().replace(' ', '_') for col in df.columns]
-            
+
             # 确保有必要的列
             required_cols = ['open', 'high', 'low', 'close', 'volume']
-            if not all(col in df.columns for col in required_cols):
+            missing_cols = [col for col in required_cols if col not in df.columns]
+            if missing_cols:
+                logger.warning(f"Yahoo v7 API缺少列 {missing_cols}: {symbol}")
                 return None
-            
+
             df = df[required_cols].dropna()
-            return df if len(df) > 0 else None
-            
+
+            if len(df) == 0:
+                logger.warning(f"Yahoo v7 API清理后数据为空: {symbol}")
+                return None
+
+            logger.info(f"Yahoo v7 API成功获取 {symbol} 数据: {len(df)} 条记录")
+            return df
+
         except Exception as e:
-            logger.error(f"Yahoo v7 API失败: {e}")
+            logger.error(f"Yahoo v7 API失败 {symbol}: {e}")
             return None
     
     def _get_from_yahoo_v8(self, symbol: str, period: str) -> Optional[pd.DataFrame]:
-        """使用Yahoo Finance v8 API"""
+        """使用Yahoo Finance v8 API (JSON格式)"""
         try:
             end_time = int(datetime.now().timestamp())
-            start_time = int((datetime.now() - timedelta(days=30)).timestamp())
-            
+            start_time = int((datetime.now() - timedelta(days=90)).timestamp())  # 增加到90天
+
             url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
             params = {
                 'period1': start_time,
                 'period2': end_time,
-                'interval': '1d'
+                'interval': '1d',
+                'includePrePost': 'false',
+                'events': 'div,split'
             }
-            
+
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'application/json,*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Referer': 'https://finance.yahoo.com/',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site'
             }
-            
-            response = requests.get(url, params=params, headers=headers, timeout=10)
+
+            response = requests.get(url, params=params, headers=headers, timeout=15)
             response.raise_for_status()
-            
+
             data = response.json()
-            
-            if 'chart' not in data or not data['chart']['result']:
+
+            # 检查响应结构
+            if 'chart' not in data:
+                logger.warning(f"Yahoo v8 API响应缺少chart字段: {symbol}")
                 return None
-            
+
+            if 'result' not in data['chart'] or not data['chart']['result']:
+                logger.warning(f"Yahoo v8 API响应缺少result字段: {symbol}")
+                return None
+
             result = data['chart']['result'][0]
+
+            # 检查必要字段
+            if 'timestamp' not in result or 'indicators' not in result:
+                logger.warning(f"Yahoo v8 API响应格式不正确: {symbol}")
+                return None
+
             timestamps = result['timestamp']
+
+            if 'quote' not in result['indicators'] or not result['indicators']['quote']:
+                logger.warning(f"Yahoo v8 API响应缺少quote数据: {symbol}")
+                return None
+
             quotes = result['indicators']['quote'][0]
-            
+
+            # 检查数据完整性
+            required_fields = ['open', 'high', 'low', 'close', 'volume']
+            for field in required_fields:
+                if field not in quotes:
+                    logger.warning(f"Yahoo v8 API缺少{field}字段: {symbol}")
+                    return None
+
             # 创建DataFrame
             df_data = []
             for i, ts in enumerate(timestamps):
+                # 跳过None值
+                if (quotes['open'][i] is None or quotes['high'][i] is None or
+                    quotes['low'][i] is None or quotes['close'][i] is None):
+                    continue
+
                 df_data.append({
                     'date': pd.to_datetime(ts, unit='s'),
-                    'open': quotes['open'][i],
-                    'high': quotes['high'][i],
-                    'low': quotes['low'][i],
-                    'close': quotes['close'][i],
-                    'volume': quotes['volume'][i]
+                    'open': float(quotes['open'][i]),
+                    'high': float(quotes['high'][i]),
+                    'low': float(quotes['low'][i]),
+                    'close': float(quotes['close'][i]),
+                    'volume': int(quotes['volume'][i]) if quotes['volume'][i] is not None else 0
                 })
-            
+
+            if not df_data:
+                logger.warning(f"Yahoo v8 API处理后数据为空: {symbol}")
+                return None
+
             df = pd.DataFrame(df_data)
             df.set_index('date', inplace=True)
             df = df.dropna()
-            
-            return df if len(df) > 0 else None
-            
+
+            if len(df) == 0:
+                logger.warning(f"Yahoo v8 API清理后数据为空: {symbol}")
+                return None
+
+            logger.info(f"Yahoo v8 API成功获取 {symbol} 数据: {len(df)} 条记录")
+            return df
+
         except Exception as e:
-            logger.error(f"Yahoo v8 API失败: {e}")
+            logger.error(f"Yahoo v8 API失败 {symbol}: {e}")
             return None
     
     def _get_from_mock_data(self, symbol: str, period: str) -> Optional[pd.DataFrame]:
