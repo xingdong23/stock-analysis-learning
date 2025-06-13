@@ -7,6 +7,7 @@ import {
 } from '../types/monitor.ts';
 import { YahooFinanceService, type YahooQuote } from './yahooFinanceApi.ts';
 import { TechnicalIndicatorService } from './technicalIndicators.ts';
+import { ApiService } from './apiService.ts';
 
 export interface FreeMonitorConfig {
   checkInterval: number; // 检查间隔（毫秒）
@@ -16,7 +17,9 @@ export interface FreeMonitorConfig {
 
 export class FreeStockMonitorService {
   private yahooService: YahooFinanceService;
+  private apiService: ApiService;
   private alerts: Map<string, StockAlert> = new Map();
+  private triggers: AlertTrigger[] = [];
   private isRunning: boolean = false;
   private config: FreeMonitorConfig;
   private lastValues: Map<string, number> = new Map();
@@ -27,6 +30,43 @@ export class FreeStockMonitorService {
   constructor(config: FreeMonitorConfig) {
     this.config = config;
     this.yahooService = new YahooFinanceService();
+    this.apiService = new ApiService();
+
+    // 加载保存的数据
+    this.loadStoredData();
+  }
+
+  // 加载保存的数据
+  private loadStoredData(): void {
+    try {
+      const storedData = LocalStorageService.loadMonitorData();
+      if (storedData) {
+        // 恢复预警规则
+        storedData.alerts.forEach(alert => {
+          this.alerts.set(alert.id, alert);
+        });
+
+        // 恢复触发记录
+        this.triggers = storedData.triggers;
+
+        // 合并配置
+        this.config = { ...this.config, ...storedData.config };
+
+        console.log(`📂 已恢复 ${storedData.alerts.length} 个预警规则和 ${storedData.triggers.length} 条触发记录`);
+      }
+    } catch (error) {
+      console.error('加载存储数据失败:', error);
+    }
+  }
+
+  // 保存数据到本地存储
+  private saveData(): void {
+    try {
+      const alerts = Array.from(this.alerts.values());
+      LocalStorageService.autoSave(alerts, this.triggers, this.config);
+    } catch (error) {
+      console.error('保存数据失败:', error);
+    }
   }
 
   // 添加预警规则
@@ -35,6 +75,9 @@ export class FreeStockMonitorService {
     alert.symbol = this.yahooService.formatSymbol(alert.symbol);
     this.alerts.set(alert.id, alert);
     console.log(`添加预警: ${alert.symbol} - ${alert.indicator.type}`);
+
+    // 保存到本地存储
+    this.saveData();
   }
 
   // 删除预警规则
