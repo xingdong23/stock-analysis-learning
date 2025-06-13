@@ -1,11 +1,11 @@
-// 免费股票监控服务 - 基于Yahoo Finance
+// 免费股票监控服务 - 基于多数据源
 
 import { 
   type StockAlert, 
   type AlertTrigger, 
   type MonitoringStatus
 } from '../types/monitor.ts';
-import { YahooFinanceService, type YahooQuote } from './yahooFinanceApi.ts';
+import { multiSourceStockService, type StockQuote, type HistoricalData } from './multiSourceStockApi.ts';
 import { TechnicalIndicatorService } from './technicalIndicators.ts';
 import { ApiService } from './apiService.ts';
 import { LocalStorageService } from './localStorageService.ts';
@@ -17,7 +17,6 @@ export interface FreeMonitorConfig {
 }
 
 export class FreeStockMonitorService {
-  private yahooService: YahooFinanceService;
   private apiService: ApiService;
   private alerts: Map<string, StockAlert> = new Map();
   private triggers: AlertTrigger[] = [];
@@ -30,7 +29,6 @@ export class FreeStockMonitorService {
 
   constructor(config: FreeMonitorConfig) {
     this.config = config;
-    this.yahooService = new YahooFinanceService();
     this.apiService = new ApiService();
 
     // 加载保存的数据
@@ -106,8 +104,6 @@ export class FreeStockMonitorService {
 
   // 添加预警规则
   addAlert(alert: StockAlert): void {
-    // 格式化股票代码
-    alert.symbol = this.yahooService.formatSymbol(alert.symbol);
     this.alerts.set(alert.id, alert);
     console.log(`添加预警: ${alert.symbol} - ${alert.indicator.type}`);
 
@@ -141,7 +137,7 @@ export class FreeStockMonitorService {
     }
 
     this.isRunning = true;
-    console.log('开始免费股票监控...');
+    console.log('🚀 开始多数据源股票监控...');
 
     // 立即执行一次检查
     await this.checkAllAlerts();
@@ -166,7 +162,7 @@ export class FreeStockMonitorService {
       this.checkTimer = null;
     }
     
-    console.log('免费股票监控已停止');
+    console.log('多数据源股票监控已停止');
   }
 
   // 检查所有预警
@@ -177,10 +173,33 @@ export class FreeStockMonitorService {
     // 获取所有需要监控的股票代码
     const symbols = [...new Set(activeAlerts.map(alert => alert.symbol))];
     
-    console.log(`检查 ${symbols.length} 只股票的 ${activeAlerts.length} 个预警规则...`);
+    console.log(`📊 检查 ${symbols.length} 只股票的 ${activeAlerts.length} 个预警规则...`);
 
     // 批量获取报价数据
-    const quotes = await this.yahooService.getMultipleQuotes(symbols);
+    const quotes = new Map<string, StockQuote>();
+    
+    // 并发获取报价，但限制并发数避免被限流
+    const batchSize = 3;
+    for (let i = 0; i < symbols.length; i += batchSize) {
+      const batch = symbols.slice(i, i + batchSize);
+      const promises = batch.map(async symbol => {
+        try {
+          const quote = await multiSourceStockService.getQuote(symbol);
+          if (quote) {
+            quotes.set(symbol, quote);
+          }
+        } catch (error) {
+          console.error(`获取 ${symbol} 报价失败:`, error);
+        }
+      });
+      
+      await Promise.allSettled(promises);
+      
+      // 添加延迟避免被限流
+      if (i + batchSize < symbols.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
 
     // 检查每个预警
     for (const alert of activeAlerts) {
@@ -196,8 +215,8 @@ export class FreeStockMonitorService {
   }
 
   // 检查单个预警
-  private async checkSingleAlert(alert: StockAlert, quote: YahooQuote): Promise<void> {
-    const currentPrice = quote.regularMarketPrice;
+  private async checkSingleAlert(alert: StockAlert, quote: StockQuote): Promise<void> {
+    const currentPrice = quote.price;
     
     // 避免过于频繁的检查同一个股票
     const lastCheck = this.lastCheckTime.get(alert.symbol) || 0;
@@ -218,20 +237,12 @@ export class FreeStockMonitorService {
 
     // 技术指标预警需要获取历史数据
     try {
-      const historicalData = await this.yahooService.getHistoricalData(alert.symbol, '6mo', '1d');
+      const historicalData = await multiSourceStockService.getHistoricalData(alert.symbol, '6mo');
       if (historicalData.length === 0) return;
 
       // 转换为通用格式
-      const candlesticks = this.yahooService.convertToLongPortFormat(historicalData);
+      const candlesticks = this.convertToLongPortFormat(historicalData, currentPrice);
       
-      // 更新最新价格
-      if (candlesticks.length > 0) {
-        const latestCandle = candlesticks[candlesticks.length - 1];
-        latestCandle.close = currentPrice.toString();
-        latestCandle.high = Math.max(parseFloat(latestCandle.high), currentPrice).toString();
-        latestCandle.low = Math.min(parseFloat(latestCandle.low), currentPrice).toString();
-      }
-
       const shouldTrigger = await this.checkTechnicalAlert(alert, candlesticks, currentPrice);
       if (shouldTrigger) {
         await this.triggerAlert(alert, quote);
@@ -239,6 +250,37 @@ export class FreeStockMonitorService {
     } catch (error) {
       console.error(`获取 ${alert.symbol} 历史数据失败:`, error);
     }
+  }
+
+  // 转换历史数据格式
+  private convertToLongPortFormat(historicalData: HistoricalData[], currentPrice?: number): Array<{
+    close: string;
+    open: string;
+    low: string;
+    high: string;
+    volume: number;
+    turnover: string;
+    timestamp: number;
+  }> {
+    const candlesticks = historicalData.map(data => ({
+      close: data.close.toString(),
+      open: data.open.toString(),
+      low: data.low.toString(),
+      high: data.high.toString(),
+      volume: data.volume,
+      turnover: (data.close * data.volume).toString(),
+      timestamp: new Date(data.date).getTime() / 1000
+    }));
+
+    // 更新最新价格
+    if (currentPrice && candlesticks.length > 0) {
+      const latestCandle = candlesticks[candlesticks.length - 1];
+      latestCandle.close = currentPrice.toString();
+      latestCandle.high = Math.max(parseFloat(latestCandle.high), currentPrice).toString();
+      latestCandle.low = Math.min(parseFloat(latestCandle.low), currentPrice).toString();
+    }
+
+    return candlesticks;
   }
 
   // 检查价格预警
@@ -378,7 +420,7 @@ export class FreeStockMonitorService {
   }
 
   // 触发预警
-  private async triggerAlert(alert: StockAlert, quote: YahooQuote): Promise<void> {
+  private async triggerAlert(alert: StockAlert, quote: StockQuote): Promise<void> {
     const now = new Date();
     
     // 检查冷却期
@@ -399,7 +441,7 @@ export class FreeStockMonitorService {
     const trigger: AlertTrigger = {
       alertId: alert.id,
       symbol: alert.symbol,
-      currentPrice: quote.regularMarketPrice,
+      currentPrice: quote.price,
       indicatorValue: 0,
       condition: alert.condition,
       message: this.generateAlertMessage(alert, quote),
@@ -411,35 +453,35 @@ export class FreeStockMonitorService {
   }
 
   // 生成预警消息
-  private generateAlertMessage(alert: StockAlert, quote: YahooQuote): string {
-    const price = quote.regularMarketPrice;
+  private generateAlertMessage(alert: StockAlert, quote: StockQuote): string {
+    const price = quote.price;
     const symbol = alert.symbol;
     
     switch (alert.condition) {
       case 'ABOVE':
-        return `${symbol} 价格 $${price.toFixed(2)} 高于 $${alert.targetValue}`;
+        return `🔥 ${symbol} 价格 $${price.toFixed(2)} 高于 $${alert.targetValue}`;
       case 'BELOW':
-        return `${symbol} 价格 $${price.toFixed(2)} 低于 $${alert.targetValue}`;
+        return `📉 ${symbol} 价格 $${price.toFixed(2)} 低于 $${alert.targetValue}`;
       case 'CROSS_ABOVE':
         const indicatorName1 = alert.indicator.type + (alert.indicator.period || '');
-        return `${symbol} 价格 $${price.toFixed(2)} 向上突破 ${indicatorName1}`;
+        return `🚀 ${symbol} 价格 $${price.toFixed(2)} 向上突破 ${indicatorName1}`;
       case 'CROSS_BELOW':
         const indicatorName2 = alert.indicator.type + (alert.indicator.period || '');
-        return `${symbol} 价格 $${price.toFixed(2)} 跌破 ${indicatorName2}`;
+        return `⚠️ ${symbol} 价格 $${price.toFixed(2)} 跌破 ${indicatorName2}`;
       case 'CONVERGING':
         const periods = alert.indicator.periods?.join(',') || '5,10,20';
-        return `${symbol} 均线缠绕 MA(${periods}) 价格 $${price.toFixed(2)}`;
+        return `🎯 ${symbol} 均线缠绕 MA(${periods}) 价格 $${price.toFixed(2)}`;
       case 'DIVERGING':
         const divergePeriods = alert.indicator.periods?.join(',') || '5,10,20';
-        return `${symbol} 均线发散 MA(${divergePeriods}) 价格 $${price.toFixed(2)}`;
+        return `💥 ${symbol} 均线发散 MA(${divergePeriods}) 价格 $${price.toFixed(2)}`;
       case 'NEAR':
         const indicatorName3 = alert.indicator.type + (alert.indicator.period || '');
-        return `${symbol} 价格 $${price.toFixed(2)} 接近 ${indicatorName3}`;
+        return `📍 ${symbol} 价格 $${price.toFixed(2)} 接近 ${indicatorName3}`;
       case 'WITHIN_RANGE':
         const indicatorName4 = alert.indicator.type + (alert.indicator.period || '');
-        return `${symbol} 价格 $${price.toFixed(2)} 在 ${indicatorName4} 附近震荡`;
+        return `📊 ${symbol} 价格 $${price.toFixed(2)} 在 ${indicatorName4} 附近震荡`;
       default:
-        return `${symbol} 触发预警条件 价格 $${price.toFixed(2)}`;
+        return `⚡ ${symbol} 触发预警条件 价格 $${price.toFixed(2)}`;
     }
   }
 
@@ -508,11 +550,40 @@ export class FreeStockMonitorService {
   // 测试连接
   async testConnection(): Promise<boolean> {
     try {
-      const quote = await this.yahooService.getQuote('AAPL');
+      const quote = await multiSourceStockService.getQuote('AAPL');
+      const cacheStats = multiSourceStockService.getCacheStats();
+      console.log('📊 多数据源缓存状态:', cacheStats);
       return quote !== null;
     } catch (error) {
       console.error('测试连接失败:', error);
       return false;
     }
+  }
+
+  // 获取数据源状态
+  async getDataSourceStatus(): Promise<{
+    backend: boolean;
+    yahoo: boolean;
+    alphavantage: boolean;
+    cache: number;
+  }> {
+    const status = {
+      backend: false,
+      yahoo: false,
+      alphavantage: false,
+      cache: multiSourceStockService.getCacheStats().size
+    };
+
+    try {
+      // 测试后端
+      const backendQuote = await multiSourceStockService.getQuote('AAPL');
+      status.backend = backendQuote !== null;
+    } catch (error) {
+      console.warn('后端数据源测试失败:', error);
+    }
+
+    // 其他数据源测试可以在这里添加
+
+    return status;
   }
 }
