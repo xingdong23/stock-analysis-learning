@@ -111,9 +111,9 @@ update_monitor() {
 update_frontend() {
     log_info "🌐 更新前端应用..."
     
-    # 本地构建前端
+    # 本地构建前端（生产模式）
     npm ci
-    npm run build
+    NODE_ENV=production npm run build
     
     # 打包并上传
     tar -czf frontend.tar.gz dist/

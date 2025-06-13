@@ -18,7 +18,10 @@ export class ApiService {
   private userId: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+    // 根据环境自动选择API地址
+    const isDevelopment = import.meta.env.DEV;
+    const defaultUrl = isDevelopment ? 'http://localhost:8001/api/v1' : 'http://101.42.14.209/api/v1';
+    this.baseUrl = import.meta.env.VITE_API_BASE_URL || defaultUrl;
     this.userId = this.getUserId();
   }
 
