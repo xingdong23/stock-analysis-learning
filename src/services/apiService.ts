@@ -179,7 +179,7 @@ export class ApiService {
   // 健康检查
   async healthCheck(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl.replace('/api', '')}/health`);
+      const response = await fetch(`${this.baseUrl.replace('/api/v1', '')}/health`);
       return response.ok;
     } catch (error) {
       console.error('健康检查失败:', error);
