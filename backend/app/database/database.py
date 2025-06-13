@@ -282,4 +282,4 @@ def check_database_health():
 
 def get_session_factory():
     """获取会话工厂"""
-    return db_manager.session_factory if db_manager.is_initialized else None
+    return db_manager.session_factory if db_manager._is_initialized else None
