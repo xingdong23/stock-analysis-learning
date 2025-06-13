@@ -99,7 +99,7 @@ export class MultiSourceStockService {
 
   // 从后端服务获取数据
   private async getFromBackendService(): Promise<any> {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_MONITOR_API_BASE_URL || 'http://localhost:5000/api';
     return { baseUrl, source: 'backend' };
   }
 
@@ -153,8 +153,8 @@ export class MultiSourceStockService {
   // 从后端获取报价
   private async getQuoteFromBackend(symbol: string): Promise<StockQuote | null> {
     try {
-      const baseUrl = import.meta.env.VITE_STOCK_MONITOR_URL || 'http://localhost:5000';
-      const response = await fetch(`${baseUrl}/api/indicators/${symbol}`);
+      const baseUrl = import.meta.env.VITE_MONITOR_API_BASE_URL || 'http://101.42.14.209/monitor/api';
+      const response = await fetch(`${baseUrl}/indicators/${symbol}`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -180,8 +180,8 @@ export class MultiSourceStockService {
   // 从后端获取历史数据
   private async getHistoricalFromBackend(symbol: string, period: string): Promise<HistoricalData[] | null> {
     try {
-      const baseUrl = import.meta.env.VITE_STOCK_MONITOR_URL || 'http://localhost:5000';
-      const response = await fetch(`${baseUrl}/api/stock/${symbol}?period=${period}`);
+      const baseUrl = import.meta.env.VITE_MONITOR_API_BASE_URL || 'http://101.42.14.209/monitor/api';
+      const response = await fetch(`${baseUrl}/stock/${symbol}?period=${period}`);
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
