@@ -58,7 +58,7 @@ check_frontend() {
 check_backend_api() {
     log_info "🐍 检查FastAPI后端..."
     
-    local response=$(curl -s -o /dev/null -w "%{http_code}" "http://$SERVER_HOST:8000/health" --connect-timeout 10)
+    local response=$(curl -s -o /dev/null -w "%{http_code}" "http://$SERVER_HOST/health" --connect-timeout 10)
     
     if [ "$response" = "200" ]; then
         log_success "FastAPI后端运行正常 (HTTP $response)"
@@ -72,7 +72,7 @@ check_backend_api() {
 check_monitor_service() {
     log_info "📈 检查股票监控服务..."
     
-    local response=$(curl -s -o /dev/null -w "%{http_code}" "http://$SERVER_HOST:5000/api/health" --connect-timeout 10)
+    local response=$(curl -s -o /dev/null -w "%{http_code}" "http://$SERVER_HOST/monitor/api/health" --connect-timeout 10)
     
     if [ "$response" = "200" ]; then
         log_success "股票监控服务运行正常 (HTTP $response)"
@@ -117,15 +117,15 @@ check_api_content() {
     fi
     
     # 检查后端健康检查
-    local backend_health=$(curl -s "http://$SERVER_HOST:8000/health" --connect-timeout 10)
+    local backend_health=$(curl -s "http://$SERVER_HOST/health" --connect-timeout 10)
     if echo "$backend_health" | grep -q "healthy"; then
         log_success "后端健康检查正常"
     else
         log_warning "后端健康检查异常"
     fi
-    
+
     # 检查监控服务
-    local monitor_health=$(curl -s "http://$SERVER_HOST:5000/api/health" --connect-timeout 10)
+    local monitor_health=$(curl -s "http://$SERVER_HOST/monitor/api/health" --connect-timeout 10)
     if echo "$monitor_health" | grep -q "healthy"; then
         log_success "监控服务健康检查正常"
     else
@@ -142,11 +142,11 @@ performance_test() {
     log_info "前端响应时间: ${frontend_time}s"
     
     # 测试后端响应时间
-    local backend_time=$(curl -o /dev/null -s -w "%{time_total}" "http://$SERVER_HOST:8000/health")
+    local backend_time=$(curl -o /dev/null -s -w "%{time_total}" "http://$SERVER_HOST/health")
     log_info "后端响应时间: ${backend_time}s"
-    
+
     # 测试监控服务响应时间
-    local monitor_time=$(curl -o /dev/null -s -w "%{time_total}" "http://$SERVER_HOST:5000/api/health")
+    local monitor_time=$(curl -o /dev/null -s -w "%{time_total}" "http://$SERVER_HOST/monitor/api/health")
     log_info "监控服务响应时间: ${monitor_time}s"
 }
 
@@ -159,9 +159,9 @@ show_deployment_info() {
     echo ""
     echo "🌐 访问地址:"
     echo "   前端应用: http://$SERVER_HOST"
-    echo "   后端API: http://$SERVER_HOST:8000"
-    echo "   API文档: http://$SERVER_HOST:8000/docs"
-    echo "   监控服务: http://$SERVER_HOST:5000"
+    echo "   后端API: http://$SERVER_HOST/api/"
+    echo "   API文档: http://$SERVER_HOST:8001/docs"
+    echo "   监控服务: http://$SERVER_HOST/monitor/"
     echo ""
     echo "🔧 管理命令:"
     echo "   查看状态: ssh root@$SERVER_HOST 'stock-status.sh'"
