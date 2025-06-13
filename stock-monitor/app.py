@@ -16,6 +16,7 @@ from typing import Dict, List, Optional
 import pandas as pd
 import pandas_ta as ta
 import requests
+import yfinance as yf
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -64,114 +65,43 @@ class StockDataProvider:
         Returns:
             DataFrame: 包含OHLCV数据的DataFrame
         """
-        max_retries = 3
-        retry_delay = 1
+        try:
+            logger.info(f"开始获取股票数据: {symbol}")
 
-        for attempt in range(max_retries):
-            try:
-                # 添加随机延迟避免频率限制
-                if attempt > 0:
-                    delay = retry_delay * (2 ** attempt) + random.uniform(0, 1)
-                    time.sleep(delay)
+            # 使用yfinance库获取数据
+            ticker = yf.Ticker(symbol)
 
-                # 使用Yahoo Finance API（免费）
-                url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-                params = {
-                    'period1': int((datetime.now() - timedelta(days=30)).timestamp()),
-                    'period2': int(datetime.now().timestamp()),
-                    'interval': '1d',
-                    'includePrePost': 'true',
-                    'events': 'div%2Csplit'
-                }
+            # 获取历史数据
+            df = ticker.history(period=period)
 
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                    'Accept': 'application/json',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                    'Connection': 'keep-alive',
-                    'Upgrade-Insecure-Requests': '1',
-                }
+            if df is None or df.empty:
+                logger.error(f"未获取到股票数据: {symbol}")
+                return None
 
-                response = requests.get(url, params=params, headers=headers, timeout=15)
+            # 重命名列名为小写
+            df.columns = [col.lower() for col in df.columns]
 
-                # 检查响应状态
-                if response.status_code == 429:  # Too Many Requests
-                    logger.warning(f"请求频率限制，等待重试... (尝试 {attempt + 1}/{max_retries})")
-                    continue
+            # 确保包含必要的列
+            required_columns = ['open', 'high', 'low', 'close', 'volume']
+            missing_columns = [col for col in required_columns if col not in df.columns]
 
-                response.raise_for_status()
-            
-                data = response.json()
+            if missing_columns:
+                logger.error(f"缺少必要的数据列 {missing_columns}: {symbol}")
+                return None
 
-                # 检查响应数据
-                if 'chart' not in data or 'result' not in data['chart'] or not data['chart']['result']:
-                    logger.error(f"Yahoo Finance API返回无效数据: {symbol}")
-                    if attempt == max_retries - 1:
-                        return None
-                    continue
+            # 清理数据
+            df = df[required_columns].dropna()
 
-                result = data['chart']['result'][0]
+            if len(df) == 0:
+                logger.error(f"清理后数据为空: {symbol}")
+                return None
 
-                # 检查数据完整性
-                if 'timestamp' not in result or 'indicators' not in result:
-                    logger.error(f"数据格式不完整: {symbol}")
-                    if attempt == max_retries - 1:
-                        return None
-                    continue
+            logger.info(f"成功获取 {symbol} 的股票数据，共 {len(df)} 条记录")
+            return df
 
-                # 提取数据
-                timestamps = result['timestamp']
-                quotes = result['indicators']['quote'][0]
-
-                # 检查数据有效性
-                if not timestamps or not quotes:
-                    logger.error(f"数据为空: {symbol}")
-                    if attempt == max_retries - 1:
-                        return None
-                    continue
-
-                # 创建DataFrame
-                df = pd.DataFrame({
-                    'timestamp': timestamps,
-                    'open': quotes['open'],
-                    'high': quotes['high'],
-                    'low': quotes['low'],
-                    'close': quotes['close'],
-                    'volume': quotes['volume']
-                })
-
-                # 转换时间戳
-                df['datetime'] = pd.to_datetime(df['timestamp'], unit='s')
-                df.set_index('datetime', inplace=True)
-                df.drop('timestamp', axis=1, inplace=True)
-
-                # 清理数据
-                df.dropna(inplace=True)
-
-                if len(df) == 0:
-                    logger.error(f"清理后数据为空: {symbol}")
-                    if attempt == max_retries - 1:
-                        return None
-                    continue
-
-                logger.info(f"成功获取 {symbol} 的股票数据，共 {len(df)} 条记录")
-                return df
-
-            except requests.exceptions.RequestException as e:
-                logger.error(f"网络请求失败 {symbol} (尝试 {attempt + 1}/{max_retries}): {e}")
-                if attempt == max_retries - 1:
-                    return None
-            except (KeyError, ValueError, TypeError) as e:
-                logger.error(f"数据解析失败 {symbol} (尝试 {attempt + 1}/{max_retries}): {e}")
-                if attempt == max_retries - 1:
-                    return None
-            except Exception as e:
-                logger.error(f"未知错误 {symbol} (尝试 {attempt + 1}/{max_retries}): {e}")
-                if attempt == max_retries - 1:
-                    return None
-
-        return None
+        except Exception as e:
+            logger.error(f"获取股票数据失败 {symbol}: {e}")
+            return None
 
 
 class TechnicalAnalyzer:
