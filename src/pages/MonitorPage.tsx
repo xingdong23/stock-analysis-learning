@@ -12,7 +12,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { type StockAlert, type AlertTrigger, type MonitoringStatus, ALERT_RULES } from '../types/monitor.ts';
-import { StockMonitorService } from '../services/stockMonitor.ts';
+import { FreeStockMonitorService } from '../services/freeStockMonitor.ts';
 
 const MonitorPage: React.FC = () => {
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
@@ -26,22 +26,18 @@ const MonitorPage: React.FC = () => {
   });
   const [showAddAlert, setShowAddAlert] = useState(false);
   const [recentTriggers, setRecentTriggers] = useState<AlertTrigger[]>([]);
-  const [monitorService, setMonitorService] = useState<StockMonitorService | null>(null);
+  const [monitorService, setMonitorService] = useState<FreeStockMonitorService | null>(null);
 
-  // 初始化监控服务
+  // 初始化免费监控服务
   useEffect(() => {
-    // 这里需要从配置中获取API密钥
+    // 免费服务配置
     const config = {
-      apiKey: import.meta.env.VITE_LONGPORT_API_KEY || '',
-      apiSecret: import.meta.env.VITE_LONGPORT_API_SECRET || '',
-      accessToken: import.meta.env.VITE_LONGPORT_ACCESS_TOKEN || '',
-      environment: 'sandbox' as const,
-      checkInterval: 5000,
+      checkInterval: 60000, // 1分钟检查一次（免费服务不需要太频繁）
       enableNotifications: true,
       notificationMethods: ['BROWSER_NOTIFICATION' as const]
     };
 
-    const service = new StockMonitorService(config);
+    const service = new FreeStockMonitorService(config);
     
     // 注册预警触发回调
     service.onAlertTriggered((trigger) => {
