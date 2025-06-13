@@ -26,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ onSearch }) => {
     { path: '/', label: '首页' },
     { path: '/indicators', label: '技术指标' },
     { path: '/practice', label: '模拟练习' },
+    { path: '/monitor', label: '股票监控' },
     { path: '/settings', label: '设置' }
   ];
 

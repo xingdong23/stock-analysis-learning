@@ -5,6 +5,7 @@ import { HomePage } from './pages/HomePage';
 import { IndicatorsPage } from './pages/IndicatorsPage';
 import { PracticePage } from './pages/PracticePage';
 import { SettingsPage } from './pages/SettingsPage';
+import MonitorPage from './pages/MonitorPage';
 
 import { IndicatorDetail } from './components/IndicatorDetail/IndicatorDetail';
 import { technicalIndicators } from './data/indicators';
@@ -31,6 +32,7 @@ function App() {
               }
             />
             <Route path="/practice" element={<PracticePage />} />
+            <Route path="/monitor" element={<MonitorPage />} />
             <Route path="/settings" element={<SettingsPage />} />
 
           </Routes>
