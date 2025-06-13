@@ -42,7 +42,7 @@ class AlertTrigger(Base):
     user_id = Column(String(100), default="anonymous", index=True, comment="用户ID")
     
     # 触发时的额外数据
-    metadata = Column(JSON, nullable=True, comment="额外元数据")
+    extra_data = Column(JSON, nullable=True, comment="额外元数据")
     
     # 状态信息
     is_read = Column(Boolean, default=False, comment="是否已读")
@@ -65,7 +65,7 @@ class AlertTrigger(Base):
             "condition": self.condition,
             "message": self.message,
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
-            "metadata": self.metadata,
+            "metadata": self.extra_data,
             "isRead": self.is_read,
             "severity": self.severity
         }

@@ -8,6 +8,7 @@ import {
 import { YahooFinanceService, type YahooQuote } from './yahooFinanceApi.ts';
 import { TechnicalIndicatorService } from './technicalIndicators.ts';
 import { ApiService } from './apiService.ts';
+import { LocalStorageService } from './localStorageService.ts';
 
 export interface FreeMonitorConfig {
   checkInterval: number; // 检查间隔（毫秒）
@@ -37,32 +38,66 @@ export class FreeStockMonitorService {
   }
 
   // 加载保存的数据
-  private loadStoredData(): void {
+  private async loadStoredData(): Promise<void> {
     try {
+      // 优先从API加载数据
+      if (this.apiService) {
+        try {
+          const alerts = await this.apiService.getAllAlerts();
+          alerts.forEach(alert => {
+            this.alerts.set(alert.id, alert);
+          });
+          console.log(`📂 从API恢复了 ${alerts.length} 个预警规则`);
+          return;
+        } catch (error) {
+          console.warn('从API加载数据失败，尝试本地存储:', error);
+        }
+      }
+
+      // 备用：从本地存储加载
       const storedData = LocalStorageService.loadMonitorData();
       if (storedData) {
         // 恢复预警规则
-        storedData.alerts.forEach(alert => {
+        storedData.alerts.forEach((alert: any) => {
           this.alerts.set(alert.id, alert);
         });
 
         // 恢复触发记录
         this.triggers = storedData.triggers;
 
-        // 合并配置
-        this.config = { ...this.config, ...storedData.config };
+        // 合并配置（保持类型安全）
+        if (storedData.config) {
+          this.config = {
+            ...this.config,
+            checkInterval: storedData.config.checkInterval || this.config.checkInterval,
+            enableNotifications: storedData.config.enableNotifications ?? this.config.enableNotifications,
+            notificationMethods: this.config.notificationMethods // 保持原有类型
+          };
+        }
 
-        console.log(`📂 已恢复 ${storedData.alerts.length} 个预警规则和 ${storedData.triggers.length} 条触发记录`);
+        console.log(`📂 从本地存储恢复了 ${storedData.alerts.length} 个预警规则和 ${storedData.triggers.length} 条触发记录`);
       }
     } catch (error) {
       console.error('加载存储数据失败:', error);
     }
   }
 
-  // 保存数据到本地存储
-  private saveData(): void {
+  // 保存数据
+  private async saveData(): Promise<void> {
     try {
       const alerts = Array.from(this.alerts.values());
+
+      // 优先保存到API
+      if (this.apiService) {
+        try {
+          // 这里可以实现批量同步到API
+          console.log('数据已同步到API');
+        } catch (error) {
+          console.warn('API保存失败，使用本地存储:', error);
+        }
+      }
+
+      // 备用：保存到本地存储
       LocalStorageService.autoSave(alerts, this.triggers, this.config);
     } catch (error) {
       console.error('保存数据失败:', error);

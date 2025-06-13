@@ -1,6 +1,6 @@
 // 本地存储服务 - 管理股票监控数据的持久化
 
-import { type StockAlert, type AlertTrigger, type MonitoringStatus } from '../types/monitor.ts';
+import { type StockAlert, type AlertTrigger } from '../types/monitor.ts';
 
 export interface StoredMonitorData {
   alerts: StockAlert[];
