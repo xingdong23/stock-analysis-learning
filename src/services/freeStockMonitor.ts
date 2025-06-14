@@ -285,16 +285,16 @@ export class FreeStockMonitorService {
 
   // 检查价格预警
   private checkPriceAlert(alert: StockAlert, currentPrice: number): boolean {
-    if (!alert.targetValue) return false;
-    
+    if (!alert.target_value) return false;
+
     switch (alert.condition) {
       case 'ABOVE':
-        return currentPrice > alert.targetValue;
+        return currentPrice > alert.target_value;
       case 'BELOW':
-        return currentPrice < alert.targetValue;
+        return currentPrice < alert.target_value;
       case 'EQUAL':
-        const tolerance = alert.targetValue * 0.001; // 0.1% 误差
-        return Math.abs(currentPrice - alert.targetValue) <= tolerance;
+        const tolerance = alert.target_value * 0.001; // 0.1% 误差
+        return Math.abs(currentPrice - alert.target_value) <= tolerance;
       default:
         return false;
     }
@@ -326,22 +326,22 @@ export class FreeStockMonitorService {
     // 检查条件
     switch (alert.condition) {
       case 'ABOVE':
-        return alert.targetValue ? currentPrice > alert.targetValue : false;
-        
+        return alert.target_value ? currentPrice > alert.target_value : false;
+
       case 'BELOW':
-        return alert.targetValue ? currentPrice < alert.targetValue : false;
-        
+        return alert.target_value ? currentPrice < alert.target_value : false;
+
       case 'CROSS_ABOVE':
-        if (!alert.targetValue || previousIndicatorValue === undefined) return false;
+        if (!alert.target_value || previousIndicatorValue === undefined) return false;
         return TechnicalIndicatorService.checkCrossover(
-          currentPrice, 
-          previousIndicatorValue, 
-          currentIndicatorValue, 
+          currentPrice,
+          previousIndicatorValue,
+          currentIndicatorValue,
           'above'
         );
-        
+
       case 'CROSS_BELOW':
-        if (!alert.targetValue || previousIndicatorValue === undefined) return false;
+        if (!alert.target_value || previousIndicatorValue === undefined) return false;
         return TechnicalIndicatorService.checkCrossover(
           currentPrice, 
           previousIndicatorValue, 
@@ -459,9 +459,9 @@ export class FreeStockMonitorService {
     
     switch (alert.condition) {
       case 'ABOVE':
-        return `🔥 ${symbol} 价格 $${price.toFixed(2)} 高于 $${alert.targetValue}`;
+        return `🔥 ${symbol} 价格 $${price.toFixed(2)} 高于 $${alert.target_value}`;
       case 'BELOW':
-        return `📉 ${symbol} 价格 $${price.toFixed(2)} 低于 $${alert.targetValue}`;
+        return `📉 ${symbol} 价格 $${price.toFixed(2)} 低于 $${alert.target_value}`;
       case 'CROSS_ABOVE':
         const indicatorName1 = alert.indicator.type + (alert.indicator.period || '');
         return `🚀 ${symbol} 价格 $${price.toFixed(2)} 向上突破 ${indicatorName1}`;

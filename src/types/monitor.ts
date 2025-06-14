@@ -6,7 +6,7 @@ export interface StockAlert {
   name: string; // 股票名称
   indicator: TechnicalIndicator; // 技术指标类型
   condition: AlertCondition; // 触发条件
-  targetValue?: number; // 目标值（如果是固定值比较）
+  target_value?: number; // 目标值（如果是固定值比较）
   isActive: boolean; // 是否启用
   createdAt: Date;
   lastTriggered?: Date;

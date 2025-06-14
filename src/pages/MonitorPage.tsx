@@ -164,7 +164,7 @@ const MonitorPage: React.FC = () => {
 
   // 格式化预警描述
   const formatAlertDescription = (alert: StockAlert): string => {
-    const { indicator, condition, targetValue } = alert;
+    const { indicator, condition, target_value } = alert;
 
     switch (indicator.type) {
       case 'MA_CONVERGENCE':
@@ -179,13 +179,13 @@ const MonitorPage: React.FC = () => {
         return `MA${indicator.period} ${condition === 'CROSS_ABOVE' ? '向上突破' : condition === 'CROSS_BELOW' ? '跌破' : condition}`;
 
       case 'RSI':
-        return `RSI${indicator.period || 14} ${condition} ${targetValue || (condition === 'ABOVE' ? '70' : '30')}`;
+        return `RSI${indicator.period || 14} ${condition} ${target_value || (condition === 'ABOVE' ? '70' : '30')}`;
 
       case 'PRICE':
-        return `价格 ${condition === 'ABOVE' ? '高于' : '低于'} $${targetValue}`;
+        return `价格 ${condition === 'ABOVE' ? '高于' : '低于'} $${target_value}`;
 
       default:
-        return `${indicator.type}${indicator.period || ''} ${condition} ${targetValue || ''}`;
+        return `${indicator.type}${indicator.period || ''} ${condition} ${target_value || ''}`;
     }
   };
 
@@ -470,7 +470,7 @@ const AddAlertModal: React.FC<{
         threshold: ['MA_CONVERGENCE', 'MA_PROXIMITY'].includes(formData.indicatorType) ? formData.threshold : undefined
       },
       condition: formData.condition as any,
-      targetValue: formData.targetValue || undefined,
+      target_value: formData.targetValue || undefined,
       isActive: true,
       createdAt: new Date(),
       triggerCount: 0
