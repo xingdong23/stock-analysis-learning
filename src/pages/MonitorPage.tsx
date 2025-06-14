@@ -441,7 +441,7 @@ const MonitorPage: React.FC = () => {
 // 添加预警弹窗组件
 const AddAlertModal: React.FC<{
   onClose: () => void;
-  onAdd: (alert: StockAlert) => void;
+  onAdd: (alert: StockAlert) => Promise<void>;
   loading?: boolean;
   error?: string | null;
 }> = ({ onClose, onAdd, loading = false, error }) => {
@@ -456,9 +456,9 @@ const AddAlertModal: React.FC<{
     targetValue: 0
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const alert: StockAlert = {
       id: Date.now().toString(),
       symbol: formData.symbol.toUpperCase(),
@@ -476,7 +476,7 @@ const AddAlertModal: React.FC<{
       triggerCount: 0
     };
 
-    onAdd(alert);
+    await onAdd(alert);
   };
 
   return (
