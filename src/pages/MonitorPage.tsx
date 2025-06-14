@@ -473,7 +473,7 @@ const AddAlertModal: React.FC<{
       target_value: formData.targetValue || undefined,
       is_active: true,
       created_at: new Date().toISOString(),
-      triggerCount: 0
+      trigger_count: 0
     };
 
     await onAdd(alert);
