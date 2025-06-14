@@ -32,7 +32,7 @@ export class StockMonitorService {
   addAlert(alert: StockAlert): void {
     this.alerts.set(alert.id, alert);
     
-    if (this.isRunning && alert.isActive) {
+    if (this.isRunning && alert.is_active) {
       this.subscribeToStock(alert.symbol);
     }
   }
@@ -45,7 +45,7 @@ export class StockMonitorService {
       
       // 检查是否还有其他预警需要这个股票
       const hasOtherAlerts = Array.from(this.alerts.values())
-        .some(a => a.symbol === alert.symbol && a.isActive);
+        .some(a => a.symbol === alert.symbol && a.is_active);
       
       if (!hasOtherAlerts) {
         this.apiService.unsubscribeQuote(alert.symbol);
@@ -57,7 +57,7 @@ export class StockMonitorService {
   toggleAlert(alertId: string, isActive: boolean): void {
     const alert = this.alerts.get(alertId);
     if (alert) {
-      alert.isActive = isActive;
+      alert.is_active = isActive;
       
       if (this.isRunning) {
         if (isActive) {
@@ -65,7 +65,7 @@ export class StockMonitorService {
         } else {
           // 检查是否还有其他启用的预警需要这个股票
           const hasOtherActiveAlerts = Array.from(this.alerts.values())
-            .some(a => a.symbol === alert.symbol && a.isActive && a.id !== alertId);
+            .some(a => a.symbol === alert.symbol && a.is_active && a.id !== alertId);
           
           if (!hasOtherActiveAlerts) {
             this.apiService.unsubscribeQuote(alert.symbol);
@@ -86,7 +86,7 @@ export class StockMonitorService {
     console.log('开始股票监控...');
 
     // 订阅所有活跃预警的股票
-    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.isActive);
+    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.is_active);
     const uniqueSymbols = [...new Set(activeAlerts.map(alert => alert.symbol))];
 
     for (const symbol of uniqueSymbols) {
@@ -117,7 +117,7 @@ export class StockMonitorService {
   private async handleQuoteUpdate(quote: LongPortQuote): Promise<void> {
     // 获取该股票的所有活跃预警
     const stockAlerts = Array.from(this.alerts.values())
-      .filter(alert => alert.symbol === quote.symbol && alert.isActive);
+      .filter(alert => alert.symbol === quote.symbol && alert.is_active);
 
     for (const alert of stockAlerts) {
       try {
@@ -138,16 +138,16 @@ export class StockMonitorService {
     
     // 如果是价格预警
     if (alert.indicator.type === 'PRICE') {
-      if (!alert.targetValue) return false;
-      
+      if (!alert.target_value) return false;
+
       switch (alert.condition) {
         case 'ABOVE':
-          return currentPrice > alert.targetValue;
+          return currentPrice > alert.target_value;
         case 'BELOW':
-          return currentPrice < alert.targetValue;
+          return currentPrice < alert.target_value;
         case 'EQUAL':
-          const tolerance = alert.targetValue * 0.001; // 0.1% 误差
-          return Math.abs(currentPrice - alert.targetValue) <= tolerance;
+          const tolerance = alert.target_value * 0.001; // 0.1% 误差
+          return Math.abs(currentPrice - alert.target_value) <= tolerance;
         default:
           return false;
       }
@@ -184,13 +184,13 @@ export class StockMonitorService {
       // 检查条件
       switch (alert.condition) {
         case 'ABOVE':
-          return alert.targetValue ? currentPrice > alert.targetValue : false;
+          return alert.target_value ? currentPrice > alert.target_value : false;
 
         case 'BELOW':
-          return alert.targetValue ? currentPrice < alert.targetValue : false;
+          return alert.target_value ? currentPrice < alert.target_value : false;
 
         case 'CROSS_ABOVE':
-          if (!alert.targetValue || previousIndicatorValue === undefined) return false;
+          if (!alert.target_value || previousIndicatorValue === undefined) return false;
           return TechnicalIndicatorService.checkCrossover(
             currentPrice,
             previousIndicatorValue,
@@ -199,7 +199,7 @@ export class StockMonitorService {
           );
 
         case 'CROSS_BELOW':
-          if (!alert.targetValue || previousIndicatorValue === undefined) return false;
+          if (!alert.target_value || previousIndicatorValue === undefined) return false;
           return TechnicalIndicatorService.checkCrossover(
             currentPrice,
             previousIndicatorValue,
@@ -291,8 +291,8 @@ export class StockMonitorService {
     const now = new Date();
     
     // 检查是否在冷却期内（避免频繁触发）
-    if (alert.lastTriggered) {
-      const timeSinceLastTrigger = now.getTime() - alert.lastTriggered.getTime();
+    if (alert.last_triggered) {
+      const timeSinceLastTrigger = now.getTime() - new Date(alert.last_triggered).getTime();
       const cooldownPeriod = 5 * 60 * 1000; // 5分钟冷却期
       
       if (timeSinceLastTrigger < cooldownPeriod) {
@@ -301,8 +301,8 @@ export class StockMonitorService {
     }
 
     // 更新预警状态
-    alert.lastTriggered = now;
-    alert.triggerCount++;
+    alert.last_triggered = now.toISOString();
+    alert.trigger_count++;
 
     // 创建触发事件
     const trigger: AlertTrigger = {
@@ -327,9 +327,9 @@ export class StockMonitorService {
 
     switch (alert.condition) {
       case 'ABOVE':
-        return `${symbol} 价格 $${price} 高于 ${alert.targetValue}`;
+        return `${symbol} 价格 $${price} 高于 ${alert.target_value}`;
       case 'BELOW':
-        return `${symbol} 价格 $${price} 低于 ${alert.targetValue}`;
+        return `${symbol} 价格 $${price} 低于 ${alert.target_value}`;
       case 'CROSS_ABOVE':
         return `${symbol} 价格 $${price} 向上突破 ${indicatorName}`;
       case 'CROSS_BELOW':
@@ -386,13 +386,13 @@ export class StockMonitorService {
 
   // 获取监控状态
   getStatus(): MonitoringStatus {
-    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.isActive);
+    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.is_active);
     const connectedStocks = [...new Set(activeAlerts.map(alert => alert.symbol))];
     const triggeredToday = Array.from(this.alerts.values())
       .filter(alert => {
-        if (!alert.lastTriggered) return false;
+        if (!alert.last_triggered) return false;
         const today = new Date();
-        const triggerDate = alert.lastTriggered;
+        const triggerDate = new Date(alert.last_triggered);
         return triggerDate.toDateString() === today.toDateString();
       }).length;
 

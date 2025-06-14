@@ -44,7 +44,7 @@ const MonitorPage: React.FC = () => {
       setMonitorStatus(prev => ({
         ...prev,
         totalAlerts: alertsData.length,
-        activeAlerts: alertsData.filter((alert: StockAlert) => alert.isActive).length,
+        activeAlerts: alertsData.filter((alert: StockAlert) => alert.is_active).length,
         connectedStocks: [...new Set(alertsData.map((alert: StockAlert) => alert.symbol))],
         lastUpdate: new Date()
       }));
@@ -318,7 +318,7 @@ const MonitorPage: React.FC = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={`border rounded-lg p-4 ${
-                        alert.isActive ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
+                        alert.is_active ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -327,7 +327,7 @@ const MonitorPage: React.FC = () => {
                             <span className="font-semibold text-lg">{alert.symbol}</span>
                             <span className="text-sm text-gray-600">{alert.name}</span>
                             <span className={`px-2 py-1 rounded-full text-xs ${
-                              alert.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                              alert.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                             }`}>
                               {alert.is_active ? '运行中' : '已暂停'}
                             </span>
@@ -344,14 +344,14 @@ const MonitorPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => toggleAlert(alert.id, !alert.isActive)}
+                            onClick={() => toggleAlert(alert.id, !alert.is_active)}
                             className={`p-2 rounded-lg transition-colors ${
-                              alert.isActive
+                              alert.is_active
                                 ? 'text-green-600 hover:bg-green-100'
                                 : 'text-gray-400 hover:bg-gray-100'
                             }`}
                           >
-                            {alert.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                            {alert.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                           </button>
                           <button
                             onClick={() => deleteAlert(alert.id)}
@@ -472,7 +472,7 @@ const AddAlertModal: React.FC<{
       condition: formData.condition as any,
       target_value: formData.targetValue || undefined,
       is_active: true,
-      createdAt: new Date(),
+      created_at: new Date().toISOString(),
       triggerCount: 0
     };
 

@@ -221,7 +221,7 @@ export class ApiService {
     try {
       const alerts = JSON.parse(alertsJson) as StockAlert[];
       const promises = alerts.map(alert => {
-        const { id, createdAt, triggerCount, lastTriggered, ...alertData } = alert;
+        const { id, created_at, trigger_count, last_triggered, ...alertData } = alert;
         return this.createAlert(alertData as any);
       });
       

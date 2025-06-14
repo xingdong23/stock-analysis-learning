@@ -424,8 +424,8 @@ export class FreeStockMonitorService {
     const now = new Date();
     
     // 检查冷却期
-    if (alert.lastTriggered) {
-      const timeSinceLastTrigger = now.getTime() - alert.lastTriggered.getTime();
+    if (alert.last_triggered) {
+      const timeSinceLastTrigger = now.getTime() - new Date(alert.last_triggered).getTime();
       const cooldownPeriod = 5 * 60 * 1000; // 5分钟冷却期
       
       if (timeSinceLastTrigger < cooldownPeriod) {

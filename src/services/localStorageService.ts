@@ -34,8 +34,8 @@ export class LocalStorageService {
       const data: StoredMonitorData = {
         alerts: alerts.map(alert => ({
           ...alert,
-          createdAt: alert.createdAt,
-          lastTriggered: alert.lastTriggered
+          createdAt: alert.created_at,
+          lastTriggered: alert.last_triggered
         })),
         triggers: limitedTriggers.map(trigger => ({
           ...trigger,
@@ -80,8 +80,8 @@ export class LocalStorageService {
         ...data,
         alerts: data.alerts.map(alert => ({
           ...alert,
-          createdAt: new Date(alert.createdAt),
-          lastTriggered: alert.lastTriggered ? new Date(alert.lastTriggered) : undefined
+          createdAt: new Date(alert.created_at),
+          lastTriggered: alert.last_triggered ? new Date(alert.last_triggered) : undefined
         })),
         triggers: data.triggers.map(trigger => ({
           ...trigger,
@@ -265,7 +265,7 @@ export class LocalStorageService {
 
     return {
       totalAlerts: data.alerts.length,
-      activeAlerts: data.alerts.filter(alert => alert.isActive).length,
+      activeAlerts: data.alerts.filter(alert => alert.is_active).length,
       totalTriggers: data.triggers.length,
       lastUpdate: lastUpdate.toLocaleString(),
       dataAge
