@@ -7,10 +7,10 @@ export interface StockAlert {
   indicator: TechnicalIndicator; // 技术指标类型
   condition: AlertCondition; // 触发条件
   target_value?: number; // 目标值（如果是固定值比较）
-  isActive: boolean; // 是否启用
-  createdAt: Date;
-  lastTriggered?: Date;
-  triggerCount: number; // 触发次数
+  is_active: boolean; // 是否启用
+  created_at: string; // 创建时间（后端返回字符串格式）
+  last_triggered?: string; // 最后触发时间
+  trigger_count: number; // 触发次数
 }
 
 export interface TechnicalIndicator {

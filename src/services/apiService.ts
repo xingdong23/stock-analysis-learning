@@ -97,12 +97,14 @@ export class ApiService {
       method: 'PUT',
       body: JSON.stringify(alert),
     });
-    
-    if (!response.data) {
-      throw new Error('更新预警失败');
+
+    // 后端直接返回预警对象，而不是包装在data字段中
+    if (response.data) {
+      return response.data;
+    } else {
+      // 如果没有data字段，说明response本身就是预警对象
+      return response as any as StockAlert;
     }
-    
-    return response.data;
   }
 
   async deleteAlert(id: string): Promise<void> {
@@ -114,14 +116,16 @@ export class ApiService {
   async toggleAlert(id: string, isActive: boolean): Promise<StockAlert> {
     const response = await this.request<StockAlert>(`/alerts/${id}/toggle`, {
       method: 'PATCH',
-      body: JSON.stringify({ isActive }),
+      body: JSON.stringify({ is_active: isActive }), // 使用后端期望的字段名
     });
-    
-    if (!response.data) {
-      throw new Error('切换预警状态失败');
+
+    // 后端直接返回预警对象，而不是包装在data字段中
+    if (response.data) {
+      return response.data;
+    } else {
+      // 如果没有data字段，说明response本身就是预警对象
+      return response as any as StockAlert;
     }
-    
-    return response.data;
   }
 
   // 触发记录相关API

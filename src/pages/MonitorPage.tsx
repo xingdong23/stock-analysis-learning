@@ -329,16 +329,16 @@ const MonitorPage: React.FC = () => {
                             <span className={`px-2 py-1 rounded-full text-xs ${
                               alert.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                             }`}>
-                              {alert.isActive ? '运行中' : '已暂停'}
+                              {alert.is_active ? '运行中' : '已暂停'}
                             </span>
                           </div>
                           <p className="text-gray-700">
                             {formatAlertDescription(alert)}
                           </p>
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>触发次数: {alert.triggerCount}</span>
-                            {alert.lastTriggered && (
-                              <span>最后触发: {alert.lastTriggered.toLocaleString()}</span>
+                            <span>触发次数: {alert.trigger_count}</span>
+                            {alert.last_triggered && (
+                              <span>最后触发: {new Date(alert.last_triggered).toLocaleString()}</span>
                             )}
                           </div>
                         </div>
@@ -471,7 +471,7 @@ const AddAlertModal: React.FC<{
       },
       condition: formData.condition as any,
       target_value: formData.targetValue || undefined,
-      isActive: true,
+      is_active: true,
       createdAt: new Date(),
       triggerCount: 0
     };

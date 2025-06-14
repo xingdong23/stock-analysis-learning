@@ -124,7 +124,7 @@ export class FreeStockMonitorService {
   toggleAlert(alertId: string, isActive: boolean): void {
     const alert = this.alerts.get(alertId);
     if (alert) {
-      alert.isActive = isActive;
+      alert.is_active = isActive;
       console.log(`${isActive ? '启用' : '禁用'}预警: ${alert.symbol}`);
     }
   }
@@ -167,7 +167,7 @@ export class FreeStockMonitorService {
 
   // 检查所有预警
   private async checkAllAlerts(): Promise<void> {
-    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.isActive);
+    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.is_active);
     if (activeAlerts.length === 0) return;
 
     // 获取所有需要监控的股票代码
@@ -434,8 +434,8 @@ export class FreeStockMonitorService {
     }
 
     // 更新预警状态
-    alert.lastTriggered = now;
-    alert.triggerCount++;
+    alert.last_triggered = now.toISOString();
+    alert.trigger_count++;
 
     // 创建触发事件
     const trigger: AlertTrigger = {
@@ -522,13 +522,13 @@ export class FreeStockMonitorService {
 
   // 获取监控状态
   getStatus(): MonitoringStatus {
-    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.isActive);
+    const activeAlerts = Array.from(this.alerts.values()).filter(alert => alert.is_active);
     const connectedStocks = [...new Set(activeAlerts.map(alert => alert.symbol))];
     const triggeredToday = Array.from(this.alerts.values())
       .filter(alert => {
-        if (!alert.lastTriggered) return false;
+        if (!alert.last_triggered) return false;
         const today = new Date();
-        const triggerDate = alert.lastTriggered;
+        const triggerDate = new Date(alert.last_triggered);
         return triggerDate.toDateString() === today.toDateString();
       }).length;
 
