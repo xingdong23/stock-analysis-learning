@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { type StockAlert, type AlertTrigger, type MonitoringStatus, ALERT_RULES } from '../types/monitor.ts';
 import { FreeStockMonitorService } from '../services/freeStockMonitor.ts';
+import { ApiService } from '../services/apiService.ts';
 
 const MonitorPage: React.FC = () => {
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
@@ -27,9 +28,39 @@ const MonitorPage: React.FC = () => {
   const [showAddAlert, setShowAddAlert] = useState(false);
   const [recentTriggers, setRecentTriggers] = useState<AlertTrigger[]>([]);
   const [monitorService, setMonitorService] = useState<FreeStockMonitorService | null>(null);
+  const [apiService] = useState(() => new ApiService());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // 初始化免费监控服务
+  // 加载预警规则
+  const loadAlerts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const alertsData = await apiService.getAlerts();
+      setAlerts(alertsData);
+
+      // 更新监控状态
+      setMonitorStatus(prev => ({
+        ...prev,
+        totalAlerts: alertsData.length,
+        activeAlerts: alertsData.filter(alert => alert.isActive).length,
+        connectedStocks: [...new Set(alertsData.map(alert => alert.symbol))],
+        lastUpdate: new Date()
+      }));
+    } catch (error) {
+      console.error('加载预警规则失败:', error);
+      setError('加载预警规则失败，请刷新页面重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始化
   useEffect(() => {
+    // 加载预警规则
+    loadAlerts();
+
     // 免费服务配置
     const config = {
       checkInterval: 60000, // 1分钟检查一次（免费服务不需要太频繁）
@@ -38,7 +69,7 @@ const MonitorPage: React.FC = () => {
     };
 
     const service = new FreeStockMonitorService(config);
-    
+
     // 注册预警触发回调
     service.onAlertTriggered((trigger) => {
       setRecentTriggers(prev => [trigger, ...prev.slice(0, 9)]); // 保留最近10条
@@ -84,15 +115,51 @@ const MonitorPage: React.FC = () => {
   };
 
   // 切换预警状态
-  const toggleAlert = (alertId: string, isActive: boolean) => {
-    if (!monitorService) return;
-    monitorService.toggleAlert(alertId, isActive);
+  const toggleAlert = async (alertId: string, isActive: boolean) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 调用API更新状态
+      await apiService.toggleAlert(alertId, isActive);
+
+      // 重新加载预警列表
+      await loadAlerts();
+
+      // 同时更新本地监控服务
+      if (monitorService) {
+        monitorService.toggleAlert(alertId, isActive);
+      }
+    } catch (error) {
+      console.error('切换预警状态失败:', error);
+      setError('切换预警状态失败，请重试');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 删除预警
-  const deleteAlert = (alertId: string) => {
-    if (!monitorService) return;
-    monitorService.removeAlert(alertId);
+  const deleteAlert = async (alertId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 调用API删除
+      await apiService.deleteAlert(alertId);
+
+      // 重新加载预警列表
+      await loadAlerts();
+
+      // 同时从本地监控服务删除
+      if (monitorService) {
+        monitorService.removeAlert(alertId);
+      }
+    } catch (error) {
+      console.error('删除预警失败:', error);
+      setError('删除预警失败，请重试');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 格式化预警描述
@@ -339,12 +406,32 @@ const MonitorPage: React.FC = () => {
       {showAddAlert && (
         <AddAlertModal
           onClose={() => setShowAddAlert(false)}
-          onAdd={(alert) => {
-            if (monitorService) {
-              monitorService.addAlert(alert);
+          onAdd={async (alert) => {
+            try {
+              setLoading(true);
+              setError(null);
+
+              // 调用API保存到后端
+              await apiService.createAlert(alert);
+
+              // 重新加载预警列表
+              await loadAlerts();
+
+              // 同时添加到本地监控服务
+              if (monitorService) {
+                monitorService.addAlert(alert);
+              }
+
+              setShowAddAlert(false);
+            } catch (error) {
+              console.error('创建预警失败:', error);
+              setError('创建预警失败，请重试');
+            } finally {
+              setLoading(false);
             }
-            setShowAddAlert(false);
           }}
+          loading={loading}
+          error={error}
         />
       )}
     </div>
@@ -355,7 +442,9 @@ const MonitorPage: React.FC = () => {
 const AddAlertModal: React.FC<{
   onClose: () => void;
   onAdd: (alert: StockAlert) => void;
-}> = ({ onClose, onAdd }) => {
+  loading?: boolean;
+  error?: string | null;
+}> = ({ onClose, onAdd, loading = false, error }) => {
   const [formData, setFormData] = useState({
     symbol: '',
     name: '',
@@ -398,7 +487,13 @@ const AddAlertModal: React.FC<{
         className="bg-white rounded-xl p-6 w-full max-w-md mx-4"
       >
         <h3 className="text-xl font-bold mb-4">添加预警规则</h3>
-        
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -583,9 +678,14 @@ const AddAlertModal: React.FC<{
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={loading}
+              className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              添加预警
+              {loading ? '保存中...' : '添加预警'}
             </button>
           </div>
         </form>
