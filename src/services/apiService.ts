@@ -68,7 +68,13 @@ export class ApiService {
   // 预警规则相关API
   async getAllAlerts(): Promise<StockAlert[]> {
     const response = await this.request<StockAlert[]>('/alerts');
-    return response.data || [];
+    // 后端直接返回数组，而不是包装在data字段中
+    if (response.data) {
+      return response.data;
+    } else {
+      // 如果没有data字段，说明response本身就是数组
+      return response as any as StockAlert[];
+    }
   }
 
   async createAlert(alert: Omit<StockAlert, 'id' | 'createdAt' | 'triggerCount' | 'lastTriggered'>): Promise<StockAlert> {
@@ -76,12 +82,14 @@ export class ApiService {
       method: 'POST',
       body: JSON.stringify(alert),
     });
-    
-    if (!response.data) {
-      throw new Error('创建预警失败');
+
+    // 后端直接返回预警对象，而不是包装在data字段中
+    if (response.data) {
+      return response.data;
+    } else {
+      // 如果没有data字段，说明response本身就是预警对象
+      return response as any as StockAlert;
     }
-    
-    return response.data;
   }
 
   async updateAlert(id: string, alert: Partial<StockAlert>): Promise<StockAlert> {
