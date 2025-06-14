@@ -37,15 +37,15 @@ const MonitorPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const alertsData = await apiService.getAlerts();
+      const alertsData = await apiService.getAllAlerts();
       setAlerts(alertsData);
 
       // 更新监控状态
       setMonitorStatus(prev => ({
         ...prev,
         totalAlerts: alertsData.length,
-        activeAlerts: alertsData.filter(alert => alert.isActive).length,
-        connectedStocks: [...new Set(alertsData.map(alert => alert.symbol))],
+        activeAlerts: alertsData.filter((alert: StockAlert) => alert.isActive).length,
+        connectedStocks: [...new Set(alertsData.map((alert: StockAlert) => alert.symbol))],
         lastUpdate: new Date()
       }));
     } catch (error) {
